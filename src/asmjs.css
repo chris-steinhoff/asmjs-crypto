@@ -1,0 +1,44 @@
+body {
+	font-family: sans-serif;
+}
+
+#output {
+	display: block;
+}
+.spacer {
+	display: inline-block;
+	width: 1em;
+}
+
+.module {
+	margin-top: .5em;
+	border: thin solid silver;
+	padding: .5em;
+}
+
+.module_header {
+	font-family: serif;
+	font-size: 120%;
+	font-weight: bold;
+	margin: .5em 0 1em 0;
+}
+
+.module_form {
+}
+
+.module_label {
+}
+
+.module_text {
+	vertical-align: top;
+}
+
+.module_submit {
+}
+
+.module_result {
+	margin-top: .5em;
+}
+
+.output {
+}
