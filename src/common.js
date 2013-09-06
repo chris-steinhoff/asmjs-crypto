@@ -12,8 +12,20 @@ var CS = function() {
 	 * @return {ArrayBuffer}
 	 */
 	function stringToArrayBuffer(str) {
-		var buff = new ArrayBuffer(str.length * 2);
+		return nStringToArrayBuffer(str, str.length);
+		/*var buff = new ArrayBuffer(str.length * 2);
 		stringInToArrayBuffer(buff, str);
+		return buff;*/
+	}
+
+	/**
+	 * @param {string} str
+	 * @param {int} len
+	 * @return {ArrayBuffer}
+	 */
+	function nStringToArrayBuffer(str, len) {
+		var buff = new ArrayBuffer(len * 2);
+		nStringInToArrayBuffer(buff, 0, str, 0, len);
 		return buff;
 	}
 
@@ -22,9 +34,24 @@ var CS = function() {
 	 * @param {string} str
 	 */
 	function stringInToArrayBuffer(buffer, str) {
-		var bufferView = new Uint16Array(buffer);
+		nStringInToArrayBuffer(buffer, 0, str, 0, str.length);
+		/*var bufferView = new Uint16Array(buffer);
 		for(var i = 0 ; i < str.length ; ++i) {
 			bufferView[i] = str.charCodeAt(i);
+		}*/
+	}
+
+	/**
+	 * @param {ArrayBuffer} buffer
+	 * @param {int} bufferOffset
+	 * @param {string} str
+	 * @param {int} strOffset
+	 * @param {int} len
+	 */
+	function nStringInToArrayBuffer(buffer, bufferOffset, str, strOffset, len) {
+		var i, j, bufferView = new Uint16Array(buffer);
+		for(i = strOffset, j = bufferOffset ; i < (strOffset + len) ; i += 1, j += 2) {
+			bufferView[j >> 1] = str.charCodeAt(i);
 		}
 	}
 
@@ -40,11 +67,11 @@ var CS = function() {
 		return String.fromCharCode.apply(null, new Uint8Array(buffer, offset, len));
 	}
 
-	function arrayBufferInToArrayBuffer(dest, src, offset, len) {
+	function arrayBufferInToArrayBuffer(dest, destOffset, src, srcOffset, len) {
 		var destView = new Uint8Array(dest);
 		var srcView = new Uint8Array(src);
-		for(var i = 0 ; i < len ; ) {
-			destView[i++] = srcView[offset++];
+		for(var i = destOffset ; i < len ; ) {
+			destView[i++] = srcView[srcOffset++];
 		}
 	}
 
@@ -56,7 +83,9 @@ var CS = function() {
 
 	return {
 		"stringToArrayBuffer": stringToArrayBuffer,
+		"nStringToArrayBuffer": nStringToArrayBuffer,
 		"stringInToArrayBuffer": stringInToArrayBuffer,
+		"nStringInToArrayBuffer": nStringInToArrayBuffer,
 		"arrayBufferToString": arrayBufferToString,
 		"arrayBufferInToArrayBuffer": arrayBufferInToArrayBuffer,
 		"sliceArrayBuffer": sliceArrayBuffer

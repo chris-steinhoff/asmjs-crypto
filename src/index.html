@@ -46,15 +46,28 @@
 			var aes_form = document.getElementById("aes_form");
 			var aes_password = document.getElementById("aes_password");
 			var aes_plaintext = document.getElementById("aes_plaintext");
-			var aes_submit = document.getElementById("aes_submit");
+			var aes_ciphertext = document.getElementById("aes_ciphertext");
+			var aes_encrypt = document.getElementById("aes_encrypt");
+			var aes_decrypt = document.getElementById("aes_decrypt");
 			var aes_output = document.getElementById("aes_output");
 			var aes_plain_output = document.getElementById("aes_plain_output");
 
-			aes_form.onsubmit = function(event) {
+			aes_encrypt.onclick = function(event) {
+				Aes.testEncrypt();
+				/*var ab;
 				event.preventDefault();
 				console.time("aes");
-				Aes.encrypt(aes_password.value, aes_plaintext.value);
+				ab = Aes.encrypt(aes_password.value, aes_plaintext.value);
 				console.timeEnd("aes");
+				aes_ciphertext.value = Hex.toHex(ab);*/
+			};
+			aes_decrypt.onclick = function(event) {
+				var str, ab = Hex.fromHex(aes_ciphertext.value);
+				event.preventDefault();
+				console.time("aes");
+				str = Aes.decrypt(aes_password.value, ab);
+				console.timeEnd("aes");
+				aes_plaintext.value = str;
 			};
 
 		});
@@ -80,9 +93,14 @@
 	<form id="aes_form" class="module_form">
 		<label for="aes_password" class="module_label">Password:</label>
 		<input id="aes_password" type="text" class="module_text"/><br/>
-		<label for="aes_plaintext" class="module_label">Text:</label>
-		<textarea id="aes_plaintext" class="module_text">a</textarea><br/>
-		<button id="aes_submit" type="submit" class="module_submit">Submit</button>
+		<label for="aes_plaintext" class="module_label">Plaintext:</label>
+		<textarea id="aes_plaintext" class="module_text">a</textarea>
+		<label for="aes_ciphertext" class="module_label">Ciphertext:</label>
+		<textarea id="aes_ciphertext" class="module_text">a</textarea><br/>
+		<label class="module_label"></label>
+		<span class="aes_submit_wrap"><button id="aes_encrypt" type="button" class="module_submit">Encrypt</button></span>
+		<label class="module_label"></label>
+		<span class="aes_submit_wrap"><button id="aes_decrypt" type="button" class="module_submit">Decrypt</button></span>
 	</form>
 	<div class="module_result">
 		<span id="aes_output" class="output"></span><br/>

@@ -27,12 +27,19 @@ body {
 }
 
 .module_label {
+	display: inline-block;
+	width: 5em;
 }
 
 .module_text {
 	vertical-align: top;
+	width: 20em;
 }
 
+.aes_submit_wrap {
+	display: inline-block;
+	width: 16em;
+}
 .module_submit {
 }
 
