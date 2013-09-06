@@ -44,6 +44,7 @@
 			};
 
 			var aes_form = document.getElementById("aes_form");
+			var aes_password = document.getElementById("aes_password");
 			var aes_plaintext = document.getElementById("aes_plaintext");
 			var aes_submit = document.getElementById("aes_submit");
 			var aes_output = document.getElementById("aes_output");
@@ -51,7 +52,9 @@
 
 			aes_form.onsubmit = function(event) {
 				event.preventDefault();
-				Aes.encrypt("", "");
+				console.time("aes");
+				Aes.encrypt(aes_password.value, aes_plaintext.value);
+				console.timeEnd("aes");
 			};
 
 		});
@@ -75,6 +78,8 @@
 <div class="module">
 	<div class="module_header">AES</div>
 	<form id="aes_form" class="module_form">
+		<label for="aes_password" class="module_label">Password:</label>
+		<input id="aes_password" type="text" class="module_text"/><br/>
 		<label for="aes_plaintext" class="module_label">Text:</label>
 		<textarea id="aes_plaintext" class="module_text">a</textarea><br/>
 		<button id="aes_submit" type="submit" class="module_submit">Submit</button>
