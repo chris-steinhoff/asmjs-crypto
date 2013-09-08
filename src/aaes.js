@@ -403,82 +403,62 @@ rcon[8]=0x1B000000; rcon[9]=0x36000000;
 			var rkView8 = new stdlib.Uint8Array(heap, rk, 240);
 			var rkView = new stdlib.Uint32Array(heap, rk, 60);
 			var keyView = new stdlib.Uint32Array(heap, key, 8);
-			var keyView8 = new stdlib.Uint8Array(heap, key, 32);
-			var t = new stdlib.Uint8Array(heap, 11000, 4);
+//			var keyView8 = new stdlib.Uint8Array(heap, key, 32);
+//			var t = new stdlib.Uint8Array(heap, 11000, 4);
 			var p, genLen, i = 0;
-			var temp = 0;
+			var temp = 0;//new stdlib.Uint32Array(heap, 11000, 1);
 			bitLength = 256;
 
-			/*rkView[0] = btow(new stdlib.Uint8Array(heap, key));
-			rkView[1] = btow(new stdlib.Uint8Array(heap, key +  4));
-			rkView[2] = btow(new stdlib.Uint8Array(heap, key +  8));
-			rkView[3] = btow(new stdlib.Uint8Array(heap, key + 12));
-			rkView[4] = btow(new stdlib.Uint8Array(heap, key + 16));
-			rkView[5] = btow(new stdlib.Uint8Array(heap, key + 20));
-			rkView[6] = btow(new stdlib.Uint8Array(heap, key + 24));
-			rkView[7] = btow(new stdlib.Uint8Array(heap, key + 28));*/
-			for(p = 0, genLen = 0 ; p < 32 ; p++, genLen++) {
-				rkView8[p] = keyView8[p];
+			for(p = 0, genLen = 0 ; p < 8 ; p++, genLen++) {
+				rkView[p] = keyView[p];
 			}
 
-			while(genLen < 240) {
-				// save last 4 bytes to t[]
-				t[0] = rkView8[genLen - 4];
-				t[1] = rkView8[genLen - 3];
-				t[2] = rkView8[genLen - 2];
-				t[3] = rkView8[genLen - 1];
-
-				//
-				// Key Schedule Core
-				//
+			while(genLen < 60) {
+				// save previous word
+				temp = rkView[genLen-1];
 
 				// apply rotation
-				temp = t[0];
-				t[0] = t[1];
-				t[1] = t[2];
-				t[2] = t[3];
-				t[3] = temp;
+				temp = (temp >>> 8) | (temp << 24);
 
 				// apply S-box
-				t[0] = Te4[t[0]] & 0xff;
-				t[1] = Te4[t[1]] & 0xff;
-				t[2] = Te4[t[2]] & 0xff;
-				t[3] = Te4[t[3]] & 0xff;
+				temp = (
+					((Te4[(temp >>> 24)       ] & 0xff) << 24) |
+					((Te4[(temp >>> 16) & 0xff] & 0xff) << 16) |
+					((Te4[(temp >>>  8) & 0xff] & 0xff) <<  8) |
+					((Te4[(temp       ) & 0xff] & 0xff)      )
+				);
 
 				// apply rcon
-				t[0] ^= stdlib.Math.pow(2, (i++));//(rcon[i++] >>> 24);
+				temp = temp ^ (stdlib.Math.pow(2, (i++)) >>> 0);
 
-				// save
-				rkView8[genLen] = t[0] ^ rkView8[genLen - 32]; genLen++;
-				rkView8[genLen] = t[1] ^ rkView8[genLen - 32]; genLen++;
-				rkView8[genLen] = t[2] ^ rkView8[genLen - 32]; genLen++;
-				rkView8[genLen] = t[3] ^ rkView8[genLen - 32]; genLen++;
+				// store new word
+				rkView[genLen] = temp ^ rkView[genLen - 8];
+				genLen++;
 
-				for(p = 0 ; p < 12 ; p++, genLen++) {
-					rkView8[genLen] = rkView8[genLen - 32] ^ rkView8[genLen - 4];
+				// store next 3 words
+				for(p = 0 ; p < 3 ; p++, genLen++) {
+					rkView[genLen] = rkView[genLen - 8] ^ rkView[genLen - 1];
 				}
 
 				if(bitLength == 256) {
-					// save last 4 bytes to t[]
-					t[0] = rkView8[genLen - 4];
-					t[1] = rkView8[genLen - 3];
-					t[2] = rkView8[genLen - 2];
-					t[3] = rkView8[genLen - 1];
+					// save previous word
+					temp = rkView[genLen-1];
 
 					// apply S-box
-					t[0] = Te4[t[0]] & 0xff;
-					t[1] = Te4[t[1]] & 0xff;
-					t[2] = Te4[t[2]] & 0xff;
-					t[3] = Te4[t[3]] & 0xff;
+					temp = (
+						((Te4[(temp >>> 24)       ] & 0xff) << 24) |
+						((Te4[(temp >>> 16) & 0xff] & 0xff) << 16) |
+						((Te4[(temp >>>  8) & 0xff] & 0xff) <<  8) |
+						((Te4[(temp       ) & 0xff] & 0xff)      )
+					);
 
-					// save
-					rkView8[genLen] = t[0] ^ rkView8[genLen - 32]; genLen++;
-					rkView8[genLen] = t[1] ^ rkView8[genLen - 32]; genLen++;
-					rkView8[genLen] = t[2] ^ rkView8[genLen - 32]; genLen++;
-					rkView8[genLen] = t[3] ^ rkView8[genLen - 32]; genLen++;
+					// store new word
+					rkView[genLen] = temp ^ rkView[genLen - 8];
+					genLen++;
 
-					for(p = 0 ; p < 12 ; p++, genLen++) {
-						rkView8[genLen] = rkView8[genLen - 32] ^ rkView8[genLen - 4];
+					// store next 3 words
+					for(p = 0 ; p < 3 ; p++, genLen++) {
+						rkView[genLen] = rkView[genLen - 8] ^ rkView[genLen - 1];
 					}
 				}
 			}
