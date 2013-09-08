@@ -404,59 +404,53 @@ rcon[8]=0x1B000000; rcon[9]=0x36000000;
 			var rkView = new stdlib.Uint32Array(heap, rk, 60);
 			var keyView = new stdlib.Uint32Array(heap, key, 8);
 //			var keyView8 = new stdlib.Uint8Array(heap, key, 32);
-//			var t = new stdlib.Uint8Array(heap, 11000, 4);
 			var p, genLen, i = 0;
-			var temp = 0;//new stdlib.Uint32Array(heap, 11000, 1);
+			var temp = 0;
 			bitLength = 256;
 
+			// Copy the first 8 words
 			for(p = 0, genLen = 0 ; p < 8 ; p++, genLen++) {
 				rkView[p] = keyView[p];
 			}
 
 			while(genLen < 60) {
-				// save previous word
+				// Save previous word
 				temp = rkView[genLen-1];
 
-				// apply rotation
-				temp = (temp >>> 8) | (temp << 24);
-
-				// apply S-box
+				// Apply Schedule Core (rotate, s-box lookup, xor rcon)
 				temp = (
-					((Te4[(temp >>> 24)       ] & 0xff) << 24) |
-					((Te4[(temp >>> 16) & 0xff] & 0xff) << 16) |
-					((Te4[(temp >>>  8) & 0xff] & 0xff) <<  8) |
-					((Te4[(temp       ) & 0xff] & 0xff)      )
+					( Te4[(temp >>>  0) & 0xff] & 0xff000000) ^
+					( Te4[(temp >>> 24)       ] & 0x00ff0000) ^
+					( Te4[(temp >>> 16) & 0xff] & 0x0000ff00) ^
+					((Te4[(temp >>>  8) & 0xff] & 0x000000ff) ^ stdlib.Math.pow(2, (i++)))
 				);
 
-				// apply rcon
-				temp = temp ^ (stdlib.Math.pow(2, (i++)) >>> 0);
-
-				// store new word
+				// Store new word
 				rkView[genLen] = temp ^ rkView[genLen - 8];
 				genLen++;
 
-				// store next 3 words
+				// Store next 3 words
 				for(p = 0 ; p < 3 ; p++, genLen++) {
 					rkView[genLen] = rkView[genLen - 8] ^ rkView[genLen - 1];
 				}
 
 				if(bitLength == 256) {
-					// save previous word
+					// Save previous word
 					temp = rkView[genLen-1];
 
-					// apply S-box
+					// Apply S-box
 					temp = (
-						((Te4[(temp >>> 24)       ] & 0xff) << 24) |
-						((Te4[(temp >>> 16) & 0xff] & 0xff) << 16) |
-						((Te4[(temp >>>  8) & 0xff] & 0xff) <<  8) |
-						((Te4[(temp       ) & 0xff] & 0xff)      )
+						(Te4[(temp >>> 24)       ] & 0xff000000) ^
+						(Te4[(temp >>> 16) & 0xff] & 0x00ff0000) ^
+						(Te4[(temp >>>  8) & 0xff] & 0x0000ff00) ^
+						(Te4[(temp       ) & 0xff] & 0x000000ff)
 					);
 
-					// store new word
+					// Store new word
 					rkView[genLen] = temp ^ rkView[genLen - 8];
 					genLen++;
 
-					// store next 3 words
+					// Store next 3 words
 					for(p = 0 ; p < 3 ; p++, genLen++) {
 						rkView[genLen] = rkView[genLen - 8] ^ rkView[genLen - 1];
 					}
