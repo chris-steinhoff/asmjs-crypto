@@ -169,62 +169,88 @@ view8[10248]=0x1B; view8[10249]=0x36;
 			rk = rk|0;
 			key = key|0;
 			bitLength = bitLength|0;
-			var p = 0, genLen = 0, i = 0;
+			var i = 0;
 			var temp = 0;
 			bitLength = 256;
 
-			// Copy the first 8 words
-			for(p = 0, genLen = 0 ; (p|0) < 32 ; p = (p + 4)|0, genLen = (genLen + 4)|0) {
-				view32[(rk + p) >> 2] = view32[(key + p) >> 2];
-			}
+			// Copy the first 4 words
+			view32[(rk     ) >> 2] = view32[(key     ) >> 2]; // [0]
+			view32[(rk +  4) >> 2] = view32[(key +  4) >> 2]; // [1]
+			view32[(rk +  8) >> 2] = view32[(key +  8) >> 2]; // [2]
+			view32[(rk + 12) >> 2] = view32[(key + 12) >> 2]; // [3]
 
-			while((genLen|0) < 240) {
-				// Save previous word
-				temp = view32[(rk + genLen - 4) >> 2]|0;
+			// 128-bit key
 
-				// Apply Schedule Core (rotate, s-box lookup, xor rcon)
-				temp = (
-					( view32[(Te4 + (((temp >>>  0) & 0xff) << 2)) >> 2] & 0xff000000) ^
-					( view32[(Te4 + (((temp >>> 24)       ) << 2)) >> 2] & 0x00ff0000) ^
-					( view32[(Te4 + (((temp >>> 16) & 0xff) << 2)) >> 2] & 0x0000ff00) ^
-					((view32[(Te4 + (((temp >>>  8) & 0xff) << 2)) >> 2] & 0x000000ff) ^
-						view8[(rcon + i)|0])
-				);
-				i = (i + 1)|0;
+			// Copy the next 2 words
+			view32[(rk + 16) >> 2] = view32[(key + 16) >> 2]; // [4]
+			view32[(rk + 20) >> 2] = view32[(key + 20) >> 2]; // [5]
 
-				// Store new word
-				view32[(rk + genLen) >> 2] = temp ^ view32[(rk + genLen - 32) >> 2];
-				genLen = (genLen + 4)|0;
+			// 192-bit key
 
-				// Store next 3 words
-				for(p = 0 ; (p|0) < 12 ; p = (p + 4)|0, genLen = (genLen + 4)|0) {
-					view32[(rk + genLen) >> 2] = view32[(rk + genLen - 32) >> 2] ^ view32[(rk + genLen - 4) >> 2];
-				}
+			// Copy the next 2 words
+			view32[(rk + 24) >> 2] = view32[(key + 24) >> 2]; // [6]
+			view32[(rk + 28) >> 2] = view32[(key + 28) >> 2]; // [7]
 
-				if((bitLength|0) == 256) {
+			// 256-bit key
+			if((bitLength|0) == 256) {
+				for( ; ; ) {
 					// Save previous word
-					temp = view32[(rk + genLen - 4) >> 2]|0;
+					temp = view32[(rk + 28) >> 2]|0; // [7]
 
-					// Apply S-box
-					temp = (
-						(view32[(Te4 + (((temp >>> 24)       ) << 2)) >> 2] & 0xff000000) ^
-						(view32[(Te4 + (((temp >>> 16) & 0xff) << 2)) >> 2] & 0x00ff0000) ^
-						(view32[(Te4 + (((temp >>>  8) & 0xff) << 2)) >> 2] & 0x0000ff00) ^
-						(view32[(Te4 + (((temp       ) & 0xff) << 2)) >> 2] & 0x000000ff)
+					// Apply the Schedule Core (rotate, s-box lookup, xor rcon)
+					// Xor it with the 8th word back
+					// Store the new word
+					view32[(rk + 32) >> 2] = ( // [8]
+						(view32[(rk) >> 2]) ^  // [0]
+						(
+							(view32[(Te4 + (((temp >>>  0) & 0xff) << 2)) >> 2] & 0xff000000) ^
+							(view32[(Te4 + (((temp >>> 24)       ) << 2)) >> 2] & 0x00ff0000) ^
+							(view32[(Te4 + (((temp >>> 16) & 0xff) << 2)) >> 2] & 0x0000ff00) ^
+							(
+								(view32[(Te4 + (((temp >>>  8) & 0xff) << 2)) >> 2] & 0x000000ff) ^
+								(view8[(rcon + i)|0])
+							)
+						)
 					);
 
-					// Store new word
-					view32[(rk + genLen) >> 2] = temp ^ view32[(rk + genLen - 32) >> 2];
-					genLen = (genLen + 4)|0;
+					// Store the next 3 words
+					view32[(rk + 36) >> 2] = view32[(rk +  4) >> 2] ^ view32[(rk + 32) >> 2]; // [ 9] = [ 1] ^ [ 8]
+					view32[(rk + 40) >> 2] = view32[(rk +  8) >> 2] ^ view32[(rk + 36) >> 2]; // [10] = [ 2] ^ [ 9]
+					view32[(rk + 44) >> 2] = view32[(rk + 12) >> 2] ^ view32[(rk + 40) >> 2]; // [11] = [ 3] ^ [10]
 
-					// Store next 3 words
-					for(p = 0 ; (p|0) < 12 ; p = (p + 4)|0, genLen = (genLen + 4)|0) {
-						view32[(rk + genLen) >> 2] = view32[(rk + genLen - 32) >> 2] ^ view32[(rk + genLen - 4) >> 2];
+					// Check if the schedule is full
+					i = (i + 1)|0;
+					if((i|0) == 7) {
+						return 14;
 					}
+
+					// Save previous word
+					temp = view32[(rk + 44) >> 2]|0; // [11]
+
+					// Apply S-box lookup
+					// Xor it with the 8th word back
+					// Store the new word
+					view32[(rk + 48) >> 2] = ( // [12]
+						(view32[(rk + 16) >> 2]) ^ // [ 4]
+						(
+							(view32[(Te4 + (((temp >>> 24)       ) << 2)) >> 2] & 0xff000000) ^
+							(view32[(Te4 + (((temp >>> 16) & 0xff) << 2)) >> 2] & 0x00ff0000) ^
+							(view32[(Te4 + (((temp >>>  8) & 0xff) << 2)) >> 2] & 0x0000ff00) ^
+							(view32[(Te4 + (((temp       ) & 0xff) << 2)) >> 2] & 0x000000ff)
+						)
+					);
+
+					// Store the next 3 words
+					view32[(rk + 52) >> 2] = view32[(rk + 20) >> 2] ^ view32[(rk + 48) >> 2]; // [13] = [ 5] ^ [12]
+					view32[(rk + 56) >> 2] = view32[(rk + 24) >> 2] ^ view32[(rk + 52) >> 2]; // [14] = [ 6] ^ [13]
+					view32[(rk + 60) >> 2] = view32[(rk + 28) >> 2] ^ view32[(rk + 56) >> 2]; // [15] = [ 7] ^ [14]
+
+					// Move pointer to the next 32-bit block
+					rk = (rk + 32)|0;
 				}
 			}
 
-			return 14;
+			return 0;
 		}
 
 		/**
