@@ -133,7 +133,7 @@ var Hex = function() {
 		}
 	}
 
-	const heap_size = 4096;
+	var heap_size = 4096;
 	var hex_heap = new ArrayBuffer(heap_size);
 	var asm = hexAsm(window, undefined, hex_heap);
 

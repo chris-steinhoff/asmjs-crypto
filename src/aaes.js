@@ -639,7 +639,7 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 			copy(state, plain, nb * 4);
 
 			addRoundKey(state, rk);
-			logHex(state, (nb * 4));
+			//logHex(state, (nb * 4));
 
 			for(round = 1 ; (round|0) < (nr + 1) ; round = (round + 1)|0) {
 				if((round|0) < nr) {
@@ -648,7 +648,7 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 					shiftRows(state);
 				}
 				addRoundKey(state, (rk + round * nb * 4));
-				logHex(state, (nb * 4));
+				//logHex(state, (nb * 4));
 			}
 
 			copy(cipher, state, nb * 4);
@@ -666,11 +666,11 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 		}
 	}
 
-	const heapSize = 16384; // 2^14
-	const rkOffset = 10280; // 240b
-	const keyOffset = 10520; // 32b
-	const plainOffset = 10552; // 16b
-	const cipherOffset = 10568; // 16b
+	var heapSize = 16384; // 2^14
+	var rkOffset = 10280; // 240b
+	var keyOffset = 10520; // 32b
+	var plainOffset = 10552; // 16b
+	var cipherOffset = 10568; // 16b
 
 	var heap = new ArrayBuffer(heapSize);
 	var heap8 = new Uint8Array(heap);
