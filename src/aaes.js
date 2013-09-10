@@ -15,7 +15,9 @@ var Aes = function() {
 	 */
 	function aesAsm(stdlib, foreign, heap) {
 
+		var logHex = foreign.logHex;
 		var view8  = new stdlib.Uint8Array(heap);
+		var view32 = new stdlib.Uint32Array(heap);
 		var Sbox = 0;
 		var ISbox = Sbox + 256;
 		var Xtime2Sbox = ISbox + 256;
@@ -26,6 +28,8 @@ var Aes = function() {
 		var XtimeD = XtimeB + 256;
 		var XtimeE = XtimeD + 256;
 		var rcon = XtimeE + 256;
+		var temp = rcon + 11;
+		var state = temp + 16;
 
 		var nb =  4; // number of bytes in the state and expanded key
 		var nk =  4; // number of columns in a key
@@ -434,26 +438,17 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 		}
 
 		/**
-		 * Convert 4 bytes to a 32-bit word.
-		 * @param {int} bv Byte-pointer to 4 bytes for conversion.
-		 * @returns {int} 32-bit word.
+		 * @param {int} dest Byte-pointer to the destination memory
+		 * @param {int} src Byte-pointer to the source memory
+		 * @param {int} len Number of bytes to copy
 		 */
-		function btow(bv) {
-			return (
-				(bv[0] << 24) ^
-				(bv[1] << 16) ^
-				(bv[2] <<  8) ^
-				(bv[3]      )
-			)|0;
-		}
-
-		function wtob(bp, word) {
-			bp = bp|0;
-			word = word|0;
-			view8[(bp    )  ] = ((word >> 24) & 0xff)|0;
-			view8[(bp + 1)|0] = ((word >> 16) & 0xff)|0;
-			view8[(bp + 2)|0] = ((word >>  8) & 0xff)|0;
-			view8[(bp + 3)|0] = ((word      ) & 0xff)|0;
+		function copy(dest, src, len) {
+			dest = dest|0;
+			src = src|0;
+			len = len|0;
+			for(len = (len - 1)|0 ; (len|0) >= 0 ; len = (len - 1)|0) {
+				view8[dest + len] = view8[src + len];
+			}
 		}
 
 		/**
@@ -464,10 +459,137 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 			var tmp = 0;
 
 			// just substitue row 0
-			view8[state] = view8[Sbox + view8[state]];
+			view8[state     ] = view8[Sbox + view8[state     ]];
 			view8[state +  4] = view8[Sbox + view8[state +  4]];
 			view8[state +  8] = view8[Sbox + view8[state +  8]];
 			view8[state + 12] = view8[Sbox + view8[state + 12]];
+
+			// rotate row 1
+			tmp               = view8[Sbox + view8[state +  1]];
+			view8[state +  1] = view8[Sbox + view8[state +  5]];
+			view8[state +  5] = view8[Sbox + view8[state +  9]];
+			view8[state +  9] = view8[Sbox + view8[state + 13]];
+			view8[state + 13] = tmp;
+
+			// rotate row 2
+			tmp               = view8[Sbox + view8[state +  2]];
+			view8[state +  2] = view8[Sbox + view8[state + 10]];
+			view8[state + 10] = tmp;
+			tmp               = view8[Sbox + view8[state +  6]];
+			view8[state +  6] = view8[Sbox + view8[state + 14]];
+			view8[state + 14] = tmp;
+
+			// rotate row 3
+			tmp               = view8[Sbox + view8[state + 15]];
+			view8[state + 15] = view8[Sbox + view8[state + 11]];
+			view8[state + 11] = view8[Sbox + view8[state +  7]];
+			view8[state +  7] = view8[Sbox + view8[state +  3]];
+			view8[state +  3] = tmp;
+
+		}
+
+		function mixSubColumn(state) {
+			state = state|0;
+
+			// mix column 0
+			view8[temp +  0] =
+				view8[Xtime2Sbox + view8[state +  0]] ^
+				view8[Xtime3Sbox + view8[state +  5]] ^
+				view8[Sbox       + view8[state + 10]] ^
+				view8[Sbox       + view8[state + 15]];
+			view8[temp +  1] =
+				view8[Sbox       + view8[state +  0]] ^
+				view8[Xtime2Sbox + view8[state +  5]] ^
+				view8[Xtime3Sbox + view8[state + 10]] ^
+				view8[Sbox       + view8[state + 15]];
+			view8[temp +  2] =
+				view8[Sbox       + view8[state +  0]] ^
+				view8[Sbox       + view8[state +  5]] ^
+				view8[Xtime2Sbox + view8[state + 10]] ^
+				view8[Xtime3Sbox + view8[state + 15]];
+			view8[temp +  3] =
+				view8[Xtime3Sbox + view8[state +  0]] ^
+				view8[Sbox       + view8[state +  5]] ^
+				view8[Sbox       + view8[state + 10]] ^
+				view8[Xtime2Sbox + view8[state + 15]];
+
+			// mix column 1
+			view8[temp +  4] =
+				view8[Xtime2Sbox + view8[state +  4]] ^
+				view8[Xtime3Sbox + view8[state +  9]] ^
+				view8[Sbox       + view8[state + 14]] ^
+				view8[Sbox       + view8[state +  3]];
+			view8[temp +  5] =
+				view8[Sbox       + view8[state +  4]] ^
+				view8[Xtime2Sbox + view8[state +  9]] ^
+				view8[Xtime3Sbox + view8[state + 14]] ^
+				view8[Sbox       + view8[state +  3]];
+			view8[temp +  6] =
+				view8[Sbox       + view8[state +  4]] ^
+				view8[Sbox       + view8[state +  9]] ^
+				view8[Xtime2Sbox + view8[state + 14]] ^
+				view8[Xtime3Sbox + view8[state +  3]];
+			view8[temp +  7] =
+				view8[Xtime3Sbox + view8[state +  4]] ^
+				view8[Sbox       + view8[state +  9]] ^
+				view8[Sbox       + view8[state + 14]] ^
+				view8[Xtime2Sbox + view8[state +  3]];
+
+			// mix column 2
+			view8[temp +  8] =
+				view8[Xtime2Sbox + view8[state +  8]] ^
+				view8[Xtime3Sbox + view8[state + 13]] ^
+				view8[Sbox       + view8[state +  2]] ^
+				view8[Sbox       + view8[state +  7]];
+			view8[temp +  9] =
+				view8[Sbox       + view8[state +  8]] ^
+				view8[Xtime2Sbox + view8[state + 13]] ^
+				view8[Xtime3Sbox + view8[state +  2]] ^
+				view8[Sbox       + view8[state +  7]];
+			view8[temp + 10] =
+				view8[Sbox       + view8[state +  8]] ^
+				view8[Sbox       + view8[state + 13]] ^
+				view8[Xtime2Sbox + view8[state +  2]] ^
+				view8[Xtime3Sbox + view8[state +  7]];
+			view8[temp + 11] =
+				view8[Xtime3Sbox + view8[state +  8]] ^
+				view8[Sbox       + view8[state + 13]] ^
+				view8[Sbox       + view8[state +  2]] ^
+				view8[Xtime2Sbox + view8[state +  7]];
+
+			// mix column 3
+			view8[temp + 12] =
+				view8[Xtime2Sbox + view8[state + 12]] ^
+				view8[Xtime3Sbox + view8[state +  1]] ^
+				view8[Sbox       + view8[state +  6]] ^
+				view8[Sbox       + view8[state + 11]];
+			view8[temp + 13] =
+				view8[Sbox       + view8[state + 12]] ^
+				view8[Xtime2Sbox + view8[state +  1]] ^
+				view8[Xtime3Sbox + view8[state +  6]] ^
+				view8[Sbox       + view8[state + 11]];
+			view8[temp + 14] =
+				view8[Sbox       + view8[state + 12]] ^
+				view8[Sbox       + view8[state +  1]] ^
+				view8[Xtime2Sbox + view8[state +  6]] ^
+				view8[Xtime3Sbox + view8[state + 11]];
+			view8[temp + 15] =
+				view8[Xtime3Sbox + view8[state + 12]] ^
+				view8[Sbox       + view8[state +  1]] ^
+				view8[Sbox       + view8[state +  6]] ^
+				view8[Xtime2Sbox + view8[state + 11]];
+
+			// store to state
+			copy(state, temp, 16);
+		}
+
+		function addRoundKey(state, key) {
+			state = state|0;
+			key = key|0;
+			var i = 0;
+			for(i = 0 ; (i|0) < (nb * 4) ; i = (i + 1)|0) {
+				view8[(state + i)] = view8[(state + i)] ^ view8[(key + i)];
+			}
 		}
 
 		/**
@@ -480,9 +602,8 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 			var tmp0 = 0, tmp1 = 0, tmp2 = 0, tmp3 = 0, tmp4 = 0;
 			var idx = 0;
 
-			for(idx = 0 ; (idx|0) < (nk * 4) ; idx = (idx + 1)|0) {
-				view8[(rk + idx)] = view8[(key + idx)];
-			}
+			// start off the rk with the key
+			copy(rk, key, (nk * 4));
 
 			for(idx = nk; (idx|0) < (nb * (nr + 1)) ; idx = (idx + 1)|0) {
 				tmp0 = view8[rk + (4 * idx - 4)];
@@ -509,224 +630,38 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 			}
 		}
 
-		/**
-		 * @param {int} rk Byte-pointer to the key schedule.
-		 * @param {int} key Byte-pointer to the key.
-		 * @param {int} [bitLength] Only 256 is supported.
-		 * @return {int} The number of rounds needed for the specified bitLength. Pass
-		 *               this value into encrypt(rk, nRounds, plain, cipher).
-		 */
-		function createEncrypt(rk, key, bitLength) {
+		function encrypt(rk, plain, cipher) {
 			rk = rk|0;
-			key = key|0;
-			bitLength = bitLength|0;
-			var p, genLen, i = 0;
-			var temp = 0;
-			bitLength = 256;
-
-			// Copy the first 8 words
-			for(p = 0, genLen = 0 ; p < 32 ; p+=4, genLen+=4) {
-				view32[(rk + p) >> 2] = view32[(key + p) >> 2];
-			}
-
-			while(genLen < 240) {
-				// Save previous word
-				temp = view32[(rk + genLen - 4) >> 2];
-
-				// Apply Schedule Core (rotate, s-box lookup, xor rcon)
-				temp = (
-					( view32[(Te4 + (((temp >>>  0) & 0xff) << 2)) >> 2] & 0xff000000) ^
-					( view32[(Te4 + (((temp >>> 24)       ) << 2)) >> 2] & 0x00ff0000) ^
-					( view32[(Te4 + (((temp >>> 16) & 0xff) << 2)) >> 2] & 0x0000ff00) ^
-					((view32[(Te4 + (((temp >>>  8) & 0xff) << 2)) >> 2] & 0x000000ff) ^
-						view8[rcon + (i++)])
-				);
-
-				// Store new word
-				view32[(rk + genLen) >> 2] = temp ^ view32[(rk + genLen - 32) >> 2];
-				genLen+=4;
-
-				// Store next 3 words
-				for(p = 0 ; p < 12 ; p+=4, genLen+=4) {
-					view32[(rk + genLen) >> 2] = view32[(rk + genLen - 32) >> 2] ^ view32[(rk + genLen - 4) >> 2];
-				}
-
-				if(bitLength == 256) {
-					// Save previous word
-					temp = view32[(rk + genLen - 4) >> 2];
-
-					// Apply S-box
-					temp = (
-						(view32[(Te4 + (((temp >>> 24)       ) << 2)) >> 2] & 0xff000000) ^
-						(view32[(Te4 + (((temp >>> 16) & 0xff) << 2)) >> 2] & 0x00ff0000) ^
-						(view32[(Te4 + (((temp >>>  8) & 0xff) << 2)) >> 2] & 0x0000ff00) ^
-						(view32[(Te4 + (((temp       ) & 0xff) << 2)) >> 2] & 0x000000ff)
-					);
-
-					// Store new word
-					view32[(rk + genLen) >> 2] = temp ^ view32[(rk + genLen - 32) >> 2];
-					genLen+=4;
-
-					// Store next 3 words
-					for(p = 0 ; p < 12 ; p+=4, genLen+=4) {
-						view32[(rk + genLen) >> 2] = view32[(rk + genLen - 32) >> 2] ^ view32[(rk + genLen - 4) >> 2];
-					}
-				}
-			}
-
-			for(var k = 0 ; k < 240 ; k += 16) {
-				console.log(Hex.toHex(heap, rkOffset + k, 16));
-			}
-			return 14;
-		}
-
-		/**
-		 * @param {int} rk Byte-pointer to the key schedule.
-		 * @param {int} key Byte-pointer to the key.
-		 * @param {int} [bitLength] Only 256 is supported.
-		 * @return {int} The number of rounds needed for the specified bitLength. Pass
-		 *               this value into encrypt(rk, nRounds, cipher, plain).
-		 */
-		function createDecrypt(rk, key, bitLength) {
-			rk = rk|0;
-			key = key|0;
-			bitLength = bitLength|0;
-			return 0;
-		}
-
-		/**
-		 * @param {int} rk Byte-pointer to the key schedule.
-		 * @param {int} nRounds The number of rounds needed for the key schedules bit length.
-		 * @param {int} plain Byte-pointer to 16 bytes of plaintext.
-		 * @param {int} cipher Byte-pointer to 16 bytes of ciphertext.
-		 */
-		function encrypt(rk, nRounds, plain, cipher) {
-			rk = rk|0;
-			nRounds = nRounds|0;
 			plain = plain|0;
 			cipher = cipher|0;
-			var s0 = 0, s1 = 0, s2 = 0, s3 = 0, t0 = 0, t1 = 0, t2 = 0, t3 = 0, r = 0;
+			var round = 0;
 
-			// Copy the plaintext to the cipher state and apply the initial round key
-			s0 = btow((plain     )  ) ^ view32[(rk     ) >> 2];
-			s1 = btow((plain +  4)|0) ^ view32[(rk +  4) >> 2];
-			s2 = btow((plain +  8)|0) ^ view32[(rk +  8) >> 2];
-			s3 = btow((plain + 12)|0) ^ view32[(rk + 12) >> 2];
+			copy(state, plain, nb * 4);
 
-			// TODO Unroll the loop
-			// Use a loop to apply the rounds
-			r = nRounds >> 1;
-			for( ; ; ) {
-				t0 =
-					(view32[(Te0 + (((s0 >> 24)       ) << 2)) >> 2]) ^
-					(view32[(Te1 + (((s1 >> 16) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te2 + (((s2 >>  8) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te3 + (((s3      ) & 0xff) << 2)) >> 2]) ^
-					(view32[(rk + 16) >> 2]);
+			addRoundKey(state, rk);
+			logHex(state, (nb * 4));
 
-				t1 =
-					(view32[(Te0 + (((s1 >> 24)       ) << 2)) >> 2]) ^
-					(view32[(Te1 + (((s2 >> 16) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te2 + (((s3 >>  8) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te3 + (((s0      ) & 0xff) << 2)) >> 2]) ^
-					(view32[(rk + 20) >> 2]);
-
-				t2 =
-					(view32[(Te0 + (((s2 >> 24)       ) << 2)) >> 2]) ^
-					(view32[(Te1 + (((s3 >> 16) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te2 + (((s0 >>  8) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te3 + (((s1      ) & 0xff) << 2)) >> 2]) ^
-					(view32[(rk + 24) >> 2]);
-
-				t3 =
-					(view32[(Te0 + (((s3 >> 24)       ) << 2)) >> 2]) ^
-					(view32[(Te1 + (((s0 >> 16) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te2 + (((s1 >>  8) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te3 + (((s2      ) & 0xff) << 2)) >> 2]) ^
-					(view32[(rk + 28) >> 2]);
-
-				rk = (rk + 32)|0;
-				r = (r - 1)|0;
-				if((r|0) == 0) {
-					break;
+			for(round = 1 ; (round|0) < (nr + 1) ; round = (round + 1)|0) {
+				if((round|0) < nr) {
+					mixSubColumn(state);
+				} else {
+					shiftRows(state);
 				}
-
-				s0 =
-					(view32[(Te0 + (((t0 >> 24)       ) << 2)) >> 2]) ^
-					(view32[(Te1 + (((t1 >> 16) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te2 + (((t2 >>  8) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te3 + (((t3      ) & 0xff) << 2)) >> 2]) ^
-					(view32[(rk     ) >> 2]);
-
-				s1 =
-					(view32[(Te0 + (((t1 >> 24)       ) << 2)) >> 2]) ^
-					(view32[(Te1 + (((t2 >> 16) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te2 + (((t3 >>  8) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te3 + (((t0      ) & 0xff) << 2)) >> 2]) ^
-					(view32[(rk +  4) >> 2]);
-
-				s2 =
-					(view32[(Te0 + (((t2 >> 24)       ) << 2)) >> 2]) ^
-					(view32[(Te1 + (((t3 >> 16) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te2 + (((t0 >>  8) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te3 + (((t1      ) & 0xff) << 2)) >> 2]) ^
-					(view32[(rk +  8) >> 2]);
-
-				s3 =
-					(view32[(Te0 + (((t3 >> 24)       ) << 2)) >> 2]) ^
-					(view32[(Te1 + (((t0 >> 16) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te2 + (((t1 >>  8) & 0xff) << 2)) >> 2]) ^
-					(view32[(Te3 + (((t2      ) & 0xff) << 2)) >> 2]) ^
-					(view32[(rk + 12) >> 2]);
+				addRoundKey(state, (rk + round * nb * 4));
+				logHex(state, (nb * 4));
 			}
 
-			// Apply the last round and copy the cipher state into the ciphertext.
-			s0 =
-				(view32[(Te4 + (((t0 >> 24)       ) << 2)) >> 2] & 0xff000000) ^
-				(view32[(Te4 + (((t1 >> 16) & 0xff) << 2)) >> 2] & 0x00ff0000) ^
-				(view32[(Te4 + (((t2 >>  8) & 0xff) << 2)) >> 2] & 0x0000ff00) ^
-				(view32[(Te4 + (((t3      ) & 0xff) << 2)) >> 2] & 0x000000ff) ^
-				(view32[(rk     ) >> 2]);
-			wtob((cipher     )|0, s0);
-
-			s1 =
-				(view32[(Te4 + (((t1 >> 24)       ) << 2)) >> 2] & 0xff000000) ^
-				(view32[(Te4 + (((t2 >> 16) & 0xff) << 2)) >> 2] & 0x00ff0000) ^
-				(view32[(Te4 + (((t3 >>  8) & 0xff) << 2)) >> 2] & 0x0000ff00) ^
-				(view32[(Te4 + (((t0      ) & 0xff) << 2)) >> 2] & 0x000000ff) ^
-				(view32[(rk +  4) >> 2]);
-			wtob((cipher +  4)|0, s1);
-
-			s2 =
-				(view32[(Te4 + (((t2 >> 24)       ) << 2)) >> 2] & 0xff000000) ^
-				(view32[(Te4 + (((t3 >> 16) & 0xff) << 2)) >> 2] & 0x00ff0000) ^
-				(view32[(Te4 + (((t0 >>  8) & 0xff) << 2)) >> 2] & 0x0000ff00) ^
-				(view32[(Te4 + (((t1      ) & 0xff) << 2)) >> 2] & 0x000000ff) ^
-				(view32[(rk +  8) >> 2]);
-			wtob((cipher +  8)|0, s2);
-
-			s3 =
-				(view32[(Te4 + (((t3 >> 24)       ) << 2)) >> 2] & 0xff000000) ^
-				(view32[(Te4 + (((t0 >> 16) & 0xff) << 2)) >> 2] & 0x00ff0000) ^
-				(view32[(Te4 + (((t1 >>  8) & 0xff) << 2)) >> 2] & 0x0000ff00) ^
-				(view32[(Te4 + (((t2      ) & 0xff) << 2)) >> 2] & 0x000000ff) ^
-				(view32[(rk + 12) >> 2]);
-			wtob((cipher + 12)|0, s3);
+			copy(cipher, state, nb * 4);
 		}
 
-		function decrypt(rk, nRounds, cipher, plain) {
-			rk = rk|0;
-			nRounds = nRounds|0;
-			cipher = cipher|0;
-			plain = plain|0;
+		function decrypt(rk, cipher, plain) {
+
 		}
 
 		return {
 			init: init,
 			expandKey: expandKey,
-			createEncrypt: createEncrypt,
-			createDecrypt: createDecrypt,
-			encrypt:encrypt,
+			encrypt: encrypt,
 			decrypt: decrypt
 		}
 	}
@@ -739,8 +674,12 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 
 	var heap = new ArrayBuffer(heapSize);
 	var heap8 = new Uint8Array(heap);
-	var asm = aesAsm(window, undefined, heap);
+	var asm = aesAsm(window, {"logHex": logHex}, heap);
 	asm.init();
+
+	function logHex(pointer, len) {
+		console.log(Hex.toHex(heap, pointer, len));
+	}
 
 	/**
 	 * @param {String} password
@@ -803,24 +742,7 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 		return "";
 	}
 
-	/*function testEncrypt() {
-		var i, nRounds, hex;
-		// set the key
-		for(i = 0 ; i < 32 ; i++) {
-			heap8[keyOffset + i] = 0;
-		}
-		console.log("key        = " + Hex.toHex(heap, keyOffset, 32));
-		nRounds = asm.createEncrypt(rkOffset, keyOffset);
-		heap8[plainOffset] = 0x80;
-		for(i = 1 ; i < 16 ; i++) {
-			heap8[plainOffset + i] = 0;
-		}
-		console.log("plaintext  = " + Hex.toHex(heap, plainOffset, 16));
-		asm.encrypt(rkOffset, nRounds, plainOffset, cipherOffset);
-		hex = Hex.toHex(heap, cipherOffset, 16);
-		console.log("ciphertext = " + hex);
-	}*/
-	/*function testEncrypt() {
+	function testEncrypt() {
 		var i, j, nRounds, hex;
 		var keyView = new Uint8Array(heap, keyOffset, 32);
 		var plainView = new Uint8Array(heap, plainOffset, 16);
@@ -830,30 +752,19 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 			keyView[i] = i;
 		}
 
-		nRounds = asm.createEncrypt(rkOffset, keyOffset);
+		asm.expandKey(rkOffset, keyOffset);
+		for(i = 0 ; i < (16 * 11) ; i += 16) {
+			console.log("RK=" + Hex.toHex(heap, rkOffset + i, 16));
+		}
 
 		// set plaintext
 		for(i = 0 ; i < 16 ; i++) {
 			plainView[i] = 16 * i + i;
 		}
+		console.log("PT=" + Hex.toHex(heap, plainOffset, 16));
 
-		asm.encrypt(rkOffset, nRounds, plainOffset, cipherOffset);
-		hex = Hex.toHex(heap, cipherOffset, 16);
-		console.log("ciphertext = " + hex);
-	}*/
-	function testEncrypt() {
-		var i, j, nRounds, hex;
-		var keyView = new Uint8Array(heap, keyOffset, 32);
-
-		// set the key
-		for(i = 0 ; i < 32 ; i++) {
-			keyView[i] = i;
-		}
-
-		asm.expandKey(rkOffset, keyOffset);
-		for(i = 0 ; i < (16 * 11) ; i += 16) {
-			console.log("expanded key = " + Hex.toHex(heap, rkOffset + i, 16));
-		}
+		asm.encrypt(rkOffset, plainOffset, cipherOffset);
+		console.log("CT=" + Hex.toHex(heap, cipherOffset, 16));
 	}
 
 	return {
