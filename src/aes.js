@@ -19,7 +19,7 @@ var Aes = function() {
 		var logHex = foreign.logHex;
 		var view8  = new stdlib.Uint8Array(heap);
 		var Sbox = 0;
-		var ISbox = 256;
+		var InvSbox = 256;
 		var Xtime2Sbox = 512;
 		var Xtime3Sbox = 768;
 		var Xtime2 = 1024;
@@ -494,6 +494,42 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 		/**
 		 * @param {int} state Byte-pointer to the state array.
 		 */
+		function invShiftRows(state) {
+			state = state|0;
+			var tmp = 0;
+
+			// restore row 0
+			view8[(state     )|0] = view8[(InvSbox + (view8[(state     )|0]|0))|0];
+			view8[(state +  4)|0] = view8[(InvSbox + (view8[(state +  4)|0]|0))|0];
+			view8[(state +  8)|0] = view8[(InvSbox + (view8[(state +  8)|0]|0))|0];
+			view8[(state + 12)|0] = view8[(InvSbox + (view8[(state + 12)|0]|0))|0];
+
+			// restore row 1
+			tmp                   = view8[(InvSbox + (view8[(state + 13)|0]|0))|0]|0;
+			view8[(state + 13)|0] = view8[(InvSbox + (view8[(state +  9)|0]|0))|0];
+			view8[(state +  9)|0] = view8[(InvSbox + (view8[(state +  5)|0]|0))|0];
+			view8[(state +  5)|0] = view8[(InvSbox + (view8[(state +  1)|0]|0))|0];
+			view8[(state +  1)|0] = tmp;
+
+			// restore row 2
+			tmp                   = view8[(InvSbox + (view8[(state +  2)|0]|0))|0]|0;
+			view8[(state +  2)|0] = view8[(InvSbox + (view8[(state + 10)|0]|0))|0];
+			view8[(state + 10)|0] = tmp;
+			tmp                   = view8[(InvSbox + (view8[(state +  6)|0]|0))|0]|0;
+			view8[(state +  6)|0] = view8[(InvSbox + (view8[(state + 14)|0]|0))|0];
+			view8[(state + 14)|0] = tmp;
+
+			// restore row 3
+			tmp                   = view8[(InvSbox + (view8[(state +  3)|0]|0))|0]|0;
+			view8[(state +  3)|0] = view8[(InvSbox + (view8[(state +  7)|0]|0))|0];
+			view8[(state +  7)|0] = view8[(InvSbox + (view8[(state + 11)|0]|0))|0];
+			view8[(state + 11)|0] = view8[(InvSbox + (view8[(state + 15)|0]|0))|0];
+			view8[(state + 15)|0] = tmp;
+		}
+
+		/**
+		 * @param {int} state Byte-pointer to the state array.
+		 */
 		function mixSubColumn(state) {
 			state = state|0;
 
@@ -587,6 +623,102 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 
 			// store to state
 			copy(state, temp, 16);
+		}
+
+		function invMixSubColumns(state) {
+			state = state|0;
+			var i = 0;
+
+			// restore column 0
+			view8[(temp +  0)|0] =
+				view8[(XtimeE + (view8[(state +  0)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state +  1)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state +  2)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state +  3)|0]|0))|0];
+			view8[(temp +  5)|0] =
+				view8[(Xtime9 + (view8[(state +  0)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state +  1)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state +  2)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state +  3)|0]|0))|0];
+			view8[(temp + 10)|0] =
+				view8[(XtimeD + (view8[(state +  0)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state +  1)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state +  2)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state +  3)|0]|0))|0];
+			view8[(temp + 15)|0] =
+				view8[(XtimeB + (view8[(state +  0)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state +  1)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state +  2)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state +  3)|0]|0))|0];
+
+			// restore column 1
+			view8[(temp +  4)|0] =
+				view8[(XtimeE + (view8[(state +  4)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state +  5)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state +  6)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state +  7)|0]|0))|0];
+			view8[(temp +  9)|0] =
+				view8[(Xtime9 + (view8[(state +  4)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state +  5)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state +  6)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state +  7)|0]|0))|0];
+			view8[(temp + 14)|0] =
+				view8[(XtimeD + (view8[(state +  4)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state +  5)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state +  6)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state +  7)|0]|0))|0];
+			view8[(temp +  3)|0] =
+				view8[(XtimeB + (view8[(state +  4)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state +  5)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state +  6)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state +  7)|0]|0))|0];
+
+			// restore column 2
+			view8[(temp +  8)|0] =
+				view8[(XtimeE + (view8[(state +  8)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state +  9)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state + 10)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state + 11)|0]|0))|0];
+			view8[(temp + 13)|0] =
+				view8[(Xtime9 + (view8[(state +  8)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state +  9)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state + 10)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state + 11)|0]|0))|0];
+			view8[(temp +  2)|0] =
+				view8[(XtimeD + (view8[(state +  8)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state +  9)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state + 10)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state + 11)|0]|0))|0];
+			view8[(temp +  7)|0] =
+				view8[(XtimeB + (view8[(state +  8)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state +  9)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state + 10)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state + 11)|0]|0))|0];
+
+			// restore column 3
+			view8[(temp + 12)|0] =
+				view8[(XtimeE + (view8[(state + 12)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state + 13)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state + 14)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state + 15)|0]|0))|0];
+			view8[(temp +  1)|0] =
+				view8[(Xtime9 + (view8[(state + 12)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state + 13)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state + 14)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state + 15)|0]|0))|0];
+			view8[(temp +  6)|0] =
+				view8[(XtimeD + (view8[(state + 12)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state + 13)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state + 14)|0]|0))|0] ^
+				view8[(XtimeB + (view8[(state + 15)|0]|0))|0];
+			view8[(temp + 11)|0] =
+				view8[(XtimeB + (view8[(state + 12)|0]|0))|0] ^
+				view8[(XtimeD + (view8[(state + 13)|0]|0))|0] ^
+				view8[(Xtime9 + (view8[(state + 14)|0]|0))|0] ^
+				view8[(XtimeE + (view8[(state + 15)|0]|0))|0];
+
+			for( ; (i|0) < (4 * nb) ; i = (i + 1)|0 )
+				view8[(state + i)|0] = view8[(InvSbox + (view8[(temp + i)|0]|0))|0];
 		}
 
 		/**
@@ -689,6 +821,23 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 			nRounds = nRounds|0;
 			cipher = cipher|0;
 			plain = plain|0;
+			var round = 0;
+			var keyView = new Uint8Array(heap, rkOffset, (16*11));
+			var stateView = new Uint8Array(heap, state, 16);
+			var cipherView = new Uint8Array(heap, cipher, 16);
+
+			copy(state, cipher, nb * 4);
+
+			addRoundKey(state, (rk + nr * 4/*nb*/ * 4)|0);
+			invShiftRows(state);
+
+			for(round = nr ; (round|0) >= 0 ; round = (round - 1)|0) {
+				addRoundKey (state, (rk + (round * 4/*nb*/ * 4))|0);
+				if((round|0) > 0)
+					invMixSubColumns(state);
+			}
+
+			copy(plain, state, nb * 4);
 		}
 
 		return {
@@ -800,10 +949,41 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 		console.log("CT=" + Hex.toHex(heap, cipherOffset, 16));
 	}
 
+	function testDecrypt() {
+		var i, j, nRounds;
+		var keyView = new Uint8Array(heap, keyOffset, 32);
+		var cipherView = new Uint8Array(heap, cipherOffset, 16);
+
+		// set the key
+		for(i = 0 ; i < 32 ; i++) {
+			keyView[i] = i;
+		}
+
+		nRounds = asm.expandKey(rkOffset, keyOffset);
+		for(i = 0 ; i < (16 * 11) ; i += 16) {
+			console.log("RK=" + Hex.toHex(heap, rkOffset + i, 16));
+		}
+
+		// set ciphertext
+		// 69 C4 E0 D8 6A 7B 04 30 D8 CD B7 80 70 B4 C5 5A
+		i = 0;
+		cipherView[i++] = 0x69; cipherView[i++] = 0xc4; cipherView[i++] = 0xe0;
+		cipherView[i++] = 0xd8; cipherView[i++] = 0x6a; cipherView[i++] = 0x7b;
+		cipherView[i++] = 0x04; cipherView[i++] = 0x30; cipherView[i++] = 0xd8;
+		cipherView[i++] = 0xcd; cipherView[i++] = 0xb7; cipherView[i++] = 0x80;
+		cipherView[i++] = 0x70; cipherView[i++] = 0xb4; cipherView[i++] = 0xc5;
+		cipherView[i++] = 0x5a;
+		console.log("CT=" + Hex.toHex(heap, cipherOffset, 16));
+
+		asm.decrypt(rkOffset, nRounds, cipherOffset, plainOffset);
+		console.log("PT=" + Hex.toHex(heap, plainOffset, 16));
+	}
+
 	return {
 		"encrypt": encrypt,
 		"decrypt": decrypt,
-		"testEncrypt": testEncrypt
+		"testEncrypt": testEncrypt,
+		"testDecrypt": testDecrypt
 	}
 
 }();

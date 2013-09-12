@@ -53,21 +53,22 @@
 			var aes_plain_output = document.getElementById("aes_plain_output");
 
 			aes_encrypt.onclick = function(event) {
-				Aes.testEncrypt();
-				/*var ab;
+//				Aes.testEncrypt();
+				var ab;
 				event.preventDefault();
 				console.time("aes");
 				ab = Aes.encrypt(aes_password.value, aes_plaintext.value);
 				console.timeEnd("aes");
-				aes_ciphertext.value = Hex.toHex(ab);*/
+				aes_ciphertext.value = Hex.toHex(ab);
 			};
 			aes_decrypt.onclick = function(event) {
-				var str, ab = Hex.fromHex(aes_ciphertext.value);
+				Aes.testDecrypt();
+				/*var str, ab = Hex.fromHex(aes_ciphertext.value);
 				event.preventDefault();
 				console.time("aes");
 				str = Aes.decrypt(aes_password.value, ab);
 				console.timeEnd("aes");
-				aes_plaintext.value = str;
+				aes_plaintext.value = str;*/
 			};
 
 		});
