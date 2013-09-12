@@ -822,16 +822,13 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 			cipher = cipher|0;
 			plain = plain|0;
 			var round = 0;
-			var keyView = new Uint8Array(heap, rkOffset, (16*11));
-			var stateView = new Uint8Array(heap, state, 16);
-			var cipherView = new Uint8Array(heap, cipher, 16);
 
 			copy(state, cipher, nb * 4);
 
 			addRoundKey(state, (rk + nr * 4/*nb*/ * 4)|0);
 			invShiftRows(state);
 
-			for(round = nr ; (round|0) >= 0 ; round = (round - 1)|0) {
+			for(round = (nr - 1)|0 ; (round|0) >= 0 ; round = (round - 1)|0) {
 				addRoundKey (state, (rk + (round * 4/*nb*/ * 4))|0);
 				if((round|0) > 0)
 					invMixSubColumns(state);
@@ -854,8 +851,9 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 	var plainOffset = 10552; // 16b
 	var cipherOffset = 10568; // 16b
 
-	var heap = new ArrayBuffer(heapSize);
-	var heap8 = new Uint8Array(heap);
+	var heap   = new ArrayBuffer(heapSize);
+	var heap8  = new Uint8Array(heap);
+	var heap16 = new Uint16Array(heap);
 	var asm = aesAsm(window, {"logHex": logHex}, heap);
 	asm.init();
 
@@ -869,8 +867,10 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 	 * @returns {ArrayBuffer}
 	 */
 	function encrypt(password, data) {
-		var ciphertext, ciphertextLen, ciphertextOffset, nRounds, dataOffset, copyLen, padLen;
-		var i, j;
+		var ciphertext, ciphertextLen, nRounds;
+		var i, c, d, p;
+		var plainView = new Uint16Array(heap, plainOffset, 8);
+		var cipherView = new Uint8Array(heap, cipherOffset, 16);
 
 		// TODO Create a real key from the password.
 		for(i = 0 ; i < 32 ; i++) {
@@ -878,36 +878,39 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 		}
 		nRounds = asm.expandKey(rkOffset, keyOffset);
 
-		while(data.length % 8 != 0) {
-			data += 0;
-		}
-
-		ciphertext = new ArrayBuffer(data.length * 2);
-		for(i = 0, j = 0 ; i < data.length ; i += 8, j += 16) {
-			CS.nStringInToArrayBuffer(heap, plainOffset, data, i, 8);
-			asm.encrypt(rkOffset, nRounds, plainOffset, cipherOffset);
-			CS.arrayBufferInToArrayBuffer(ciphertext, j, heap, cipherOffset, 16);
-		}
-
-		/*ciphertextLen = data.length * 2;
+		// Create the ciphertext buffer
+		ciphertextLen = data.length * 2 + 1; // + 1 for the terminating 0x80
+		ciphertextLen = ciphertextLen + (16 - (ciphertextLen % 16)) % 16;
 		ciphertext = new ArrayBuffer(ciphertextLen);
-		for(
-				dataOffset = 0, ciphertextOffset = 0 ;
-				ciphertextLen > 0 ;
-				dataOffset += copyLen, ciphertextOffset += copyLen, ciphertextLen -= copyLen
-			) {
-			copyLen = Math.min(ciphertextLen, 8);
-			padLen = 7 - copyLen;
-			CS.nStringInToArrayBuffer(heap, plainOffset, data, dataOffset, copyLen);
-			// Add padding to finish the 16-byte block
-			while(padLen >= 0) {
-				heap8[plainOffset + copyLen + padLen] = 0;
-				padLen -= 1;
+
+		// Encrypt the data in 8-character blocks
+		for(c = 0, d = 0, p = 0 ; d < data.length ; ) {
+			heap16[(plainOffset >> 1) + p++] = data.charCodeAt(d++);
+			if((p % 8) > 0) {
+				continue;
 			}
+
 			asm.encrypt(rkOffset, nRounds, plainOffset, cipherOffset);
-			CS.arrayBufferInToArrayBuffer(ciphertext, ciphertextOffset, heap, cipherOffset, 16);
-		}*/
-		// TODO copy the ciphertext buffer to an ArrayBuffer.
+			CS.arrayBufferInToArrayBuffer(ciphertext, c, heap, cipherOffset, 16);
+			c += 16;
+			p = 0;
+		}
+
+		// Convert the plaintext pointer to a byte-pointer
+		p = p << 1;
+
+		// Append the 0x80 byte
+		heap8[plainOffset + p++] = 0x80;
+
+		// Append padding
+		while((p % 16) > 0) {
+			heap8[plainOffset + p++] = 0x00;
+		}
+
+		// Encrypt padded block
+		asm.encrypt(rkOffset, nRounds, plainOffset, cipherOffset);
+		CS.arrayBufferInToArrayBuffer(ciphertext, c, heap, cipherOffset, 16);
+
 		return ciphertext;
 	}
 
