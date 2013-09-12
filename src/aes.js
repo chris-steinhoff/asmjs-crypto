@@ -914,17 +914,48 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 		return ciphertext;
 	}
 
+	/**
+	 * @param {String} password
+	 * @param {ArrayBuffer} data
+	 * @returns {string}
+	 */
 	function decrypt(password, data) {
+		var data8 = new Uint8Array(data);
+		var plaintext, nRounds;
+		var i, c, d;
+		var plainView = new Uint16Array(heap, plainOffset, 8);
+		var cipherView = new Uint8Array(heap, cipherOffset, 16);
+
 		// TODO Create a real key from the password.
-		for(var i = 0 ; i < 32 ; i++) {
+		for(i = 0 ; i < 32 ; i++) {
 			heap8[keyOffset + i] = 0;//65 + i;
 		}
-		var nRounds = asm.expandKey(rkOffset, keyOffset);
-		// TODO process data 16 bytes (8 characters) at a time.
-		// TODO copy data into the ciphertext buffer.
-		asm.decrypt(rkOffset, nRounds, cipherOffset, plainOffset);
-		// TODO copy the plaintext buffer to a string.
-		return "";
+		nRounds = asm.expandKey(rkOffset, keyOffset);
+
+		// Create the plaintext buffer
+		plaintext = "";
+
+		// Decrypt the data in 16-byte blocks
+		for(c = 0, d = 0 ; d < data8.length ; ) {
+			heap8[cipherOffset + c++] = data8[d++];
+			if((c % 16) > 0) {
+				continue;
+			}
+
+			asm.decrypt(rkOffset, nRounds, cipherOffset, plainOffset);
+			i = plainOffset + 16;
+			if(d === data8.length) {
+				do {
+					i--;
+				} while(heap8[i] !== 0x80);
+			}
+			for(c = plainOffset ; c < i ; c++) {
+				plaintext += String.fromCharCode(heap8[c++]);
+			}
+			c = 0;
+		}
+
+		return plaintext;
 	}
 
 	function testEncrypt() {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>asmjs</title>
 	<meta charset="UTF-8">
 	<link type="text/css" rel="stylesheet" href="asmjs.css"/>
 	<script type="text/javascript" src="common.js"></script>
@@ -62,13 +62,13 @@
 				aes_ciphertext.value = Hex.toHex(ab);
 			};
 			aes_decrypt.onclick = function(event) {
-				Aes.testDecrypt();
-				/*var str, ab = Hex.fromHex(aes_ciphertext.value);
+//				Aes.testDecrypt();
+				var str, ab = Hex.fromHex(aes_ciphertext.value);
 				event.preventDefault();
 				console.time("aes");
 				str = Aes.decrypt(aes_password.value, ab);
 				console.timeEnd("aes");
-				aes_plaintext.value = str;*/
+				aes_plaintext.value = str;
 			};
 
 		});

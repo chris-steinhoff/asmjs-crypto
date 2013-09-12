@@ -73,6 +73,7 @@ var Hex = function() {
 		 * @param {int} offset Pointer to the beginning of the data in the heap.
 		 * @param {int} len Length of the data.
 		 * @returns {int} Pointer to the beginning of the converted data in the heap.
+		 *                The length of the converted data is len/4.
 		 */
 		function fromHex(offset, len) {
 			offset = offset|0; // heap read-pointer.
@@ -154,7 +155,7 @@ var Hex = function() {
 		}
 		i = asm.toHex(0, i);
 		// l * 2 because the hex string is twice as long as the original byte length.
-		return CS.arrayBufferToString(hex_heap, i, l * 2);
+		return String.fromCharCode.apply(null, new Uint8Array(hex_heap, i, (l * 2)));
 	}
 
 	/**

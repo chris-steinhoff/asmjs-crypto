@@ -13,9 +13,6 @@ var CS = function() {
 	 */
 	function stringToArrayBuffer(str) {
 		return nStringToArrayBuffer(str, str.length);
-		/*var buff = new ArrayBuffer(str.length * 2);
-		stringInToArrayBuffer(buff, str);
-		return buff;*/
 	}
 
 	/**
@@ -35,10 +32,6 @@ var CS = function() {
 	 */
 	function stringInToArrayBuffer(buffer, str) {
 		nStringInToArrayBuffer(buffer, 0, str, 0, str.length);
-		/*var bufferView = new Uint16Array(buffer);
-		for(var i = 0 ; i < str.length ; ++i) {
-			bufferView[i] = str.charCodeAt(i);
-		}*/
 	}
 
 	/**
@@ -47,12 +40,14 @@ var CS = function() {
 	 * @param {string} str
 	 * @param {int} strOffset
 	 * @param {int} len
+	 * @return {int} Number of bytes written to the ArrayBuffer
 	 */
 	function nStringInToArrayBuffer(buffer, bufferOffset, str, strOffset, len) {
 		var i, j, bufferView = new Uint16Array(buffer);
 		for(i = strOffset, j = bufferOffset ; i < (strOffset + len) ; i += 1, j += 2) {
 			bufferView[j >> 1] = str.charCodeAt(i);
 		}
+		return len * 2;
 	}
 
 	/**
@@ -64,7 +59,7 @@ var CS = function() {
 	function arrayBufferToString(buffer, offset, len) {
 		offset = (offset === undefined ? 0 : offset);
 		len = (len === undefined ? buffer.byteLength : len);
-		return String.fromCharCode.apply(null, new Uint8Array(buffer, offset, len));
+		return String.fromCharCode.apply(null, new Uint16Array(buffer, offset, (len >> 2)));
 	}
 
 	function arrayBufferInToArrayBuffer(dest, destOffset, src, srcOffset, len) {
@@ -77,7 +72,7 @@ var CS = function() {
 
 	function sliceArrayBuffer(buffer, offset, len) {
 		var dest = new ArrayBuffer(len);
-		arrayBufferInToArrayBuffer(dest, buffer, offset, len);
+		arrayBufferInToArrayBuffer(dest, 0, buffer, offset, len);
 		return dest;
 	}
 
