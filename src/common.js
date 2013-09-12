@@ -70,8 +70,8 @@ var CS = function() {
 	function arrayBufferInToArrayBuffer(dest, destOffset, src, srcOffset, len) {
 		var destView = new Uint8Array(dest);
 		var srcView = new Uint8Array(src);
-		for(var i = destOffset ; i < len ; ) {
-			destView[i++] = srcView[srcOffset++];
+		for(var i = 0 ; i < len ; i++) {
+			destView[destOffset++] = srcView[srcOffset++];
 		}
 	}
 
