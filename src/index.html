@@ -45,6 +45,7 @@
 
 			var aes_form = document.getElementById("aes_form");
 			var aes_password = document.getElementById("aes_password");
+			var aes_keysize = document.getElementById("aes_keysize");
 			var aes_plaintext = document.getElementById("aes_plaintext");
 			var aes_ciphertext = document.getElementById("aes_ciphertext");
 			var aes_encrypt = document.getElementById("aes_encrypt");
@@ -53,20 +54,24 @@
 			var aes_plain_output = document.getElementById("aes_plain_output");
 
 			aes_encrypt.onclick = function(event) {
-//				Aes.testEncrypt();
+//				Aes.testEncrypt(128);
+//				Aes.testEncrypt(192);
+//				Aes.testEncrypt(256);
 				var ab;
 				event.preventDefault();
 				console.time("aes");
-				ab = Aes.encrypt(aes_password.value, aes_plaintext.value);
+				ab = Aes.encrypt(aes_password.value, aes_plaintext.value, aes_keysize.value);
 				console.timeEnd("aes");
 				aes_ciphertext.value = Hex.toHex(ab);
 			};
 			aes_decrypt.onclick = function(event) {
-//				Aes.testDecrypt();
+//				Aes.testDecrypt(128);
+//				Aes.testDecrypt(192);
+//				Aes.testDecrypt(256);
 				var str, ab = Hex.fromHex(aes_ciphertext.value);
 				event.preventDefault();
 				console.time("aes");
-				str = Aes.decrypt(aes_password.value, ab);
+				str = Aes.decrypt(aes_password.value, ab, aes_keysize.value);
 				console.timeEnd("aes");
 				aes_plaintext.value = str;
 			};
@@ -93,7 +98,11 @@
 	<div class="module_header">AES</div>
 	<form id="aes_form" class="module_form">
 		<label for="aes_password" class="module_label">Password:</label>
-		<input id="aes_password" type="text" class="module_text"/><br/>
+		<input id="aes_password" type="text" class="module_text"/>
+		<label for="aes_keysize" class="module_label">Key Size:</label>
+		<select id="aes_keysize" class="module_text">
+			<option>128</option><option>192</option><option>256</option>
+		</select><br/>
 		<label for="aes_plaintext" class="module_label">Plaintext:</label>
 		<textarea id="aes_plaintext" class="module_text">a</textarea>
 		<label for="aes_ciphertext" class="module_label">Ciphertext:</label>

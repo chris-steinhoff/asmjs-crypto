@@ -22,15 +22,15 @@ var Aes = function() {
 		var InvSbox = 256;
 		var Xtime2Sbox = 512;
 		var Xtime3Sbox = 768;
-		var Xtime2 = 1024;
-		var Xtime9 = 1280;
-		var XtimeB = 1536;
-		var XtimeD = 1792;
-		var XtimeE = 2048;
-		var rcon = 2304;
-		var temp = 2315; // rcon + 11
-		var state = 2331; // temp + 16
+		var Xtime9 = 1024;
+		var XtimeB = 1280;
+		var XtimeD = 1536;
+		var XtimeE = 1792;
+		var rcon = 2048;
+		var temp = 2059; // rcon + 11
+		var state = 2075; // temp + 16
 
+		var stateSize = 16; // size of the state array
 		var nb =  4; // number of bytes in the state and expanded key
 		var nk =  4; // number of columns in a key
 		var nr = 10; // number of rounds in encryption
@@ -215,229 +215,185 @@ view8[1002]=0x92; view8[1003]=0x20; view8[1004]=0x49; view8[1005]=0xff; view8[10
 view8[1008]=0x8f; view8[1009]=0xf8; view8[1010]=0x80; view8[1011]=0x17; view8[1012]=0xda; view8[1013]=0x31;
 view8[1014]=0xc6; view8[1015]=0xb8; view8[1016]=0xc3; view8[1017]=0xb0; view8[1018]=0x77; view8[1019]=0x11;
 view8[1020]=0xcb; view8[1021]=0xfc; view8[1022]=0xd6; view8[1023]=0x3a;
-// Load the Xtime2 lookup table
-view8[1024]=0x00; view8[1025]=0x02; view8[1026]=0x04; view8[1027]=0x06; view8[1028]=0x08; view8[1029]=0x0a;
-view8[1030]=0x0c; view8[1031]=0x0e; view8[1032]=0x10; view8[1033]=0x12; view8[1034]=0x14; view8[1035]=0x16;
-view8[1036]=0x18; view8[1037]=0x1a; view8[1038]=0x1c; view8[1039]=0x1e; view8[1040]=0x20; view8[1041]=0x22;
-view8[1042]=0x24; view8[1043]=0x26; view8[1044]=0x28; view8[1045]=0x2a; view8[1046]=0x2c; view8[1047]=0x2e;
-view8[1048]=0x30; view8[1049]=0x32; view8[1050]=0x34; view8[1051]=0x36; view8[1052]=0x38; view8[1053]=0x3a;
-view8[1054]=0x3c; view8[1055]=0x3e; view8[1056]=0x40; view8[1057]=0x42; view8[1058]=0x44; view8[1059]=0x46;
-view8[1060]=0x48; view8[1061]=0x4a; view8[1062]=0x4c; view8[1063]=0x4e; view8[1064]=0x50; view8[1065]=0x52;
-view8[1066]=0x54; view8[1067]=0x56; view8[1068]=0x58; view8[1069]=0x5a; view8[1070]=0x5c; view8[1071]=0x5e;
-view8[1072]=0x60; view8[1073]=0x62; view8[1074]=0x64; view8[1075]=0x66; view8[1076]=0x68; view8[1077]=0x6a;
-view8[1078]=0x6c; view8[1079]=0x6e; view8[1080]=0x70; view8[1081]=0x72; view8[1082]=0x74; view8[1083]=0x76;
-view8[1084]=0x78; view8[1085]=0x7a; view8[1086]=0x7c; view8[1087]=0x7e; view8[1088]=0x80; view8[1089]=0x82;
-view8[1090]=0x84; view8[1091]=0x86; view8[1092]=0x88; view8[1093]=0x8a; view8[1094]=0x8c; view8[1095]=0x8e;
-view8[1096]=0x90; view8[1097]=0x92; view8[1098]=0x94; view8[1099]=0x96; view8[1100]=0x98; view8[1101]=0x9a;
-view8[1102]=0x9c; view8[1103]=0x9e; view8[1104]=0xa0; view8[1105]=0xa2; view8[1106]=0xa4; view8[1107]=0xa6;
-view8[1108]=0xa8; view8[1109]=0xaa; view8[1110]=0xac; view8[1111]=0xae; view8[1112]=0xb0; view8[1113]=0xb2;
-view8[1114]=0xb4; view8[1115]=0xb6; view8[1116]=0xb8; view8[1117]=0xba; view8[1118]=0xbc; view8[1119]=0xbe;
-view8[1120]=0xc0; view8[1121]=0xc2; view8[1122]=0xc4; view8[1123]=0xc6; view8[1124]=0xc8; view8[1125]=0xca;
-view8[1126]=0xcc; view8[1127]=0xce; view8[1128]=0xd0; view8[1129]=0xd2; view8[1130]=0xd4; view8[1131]=0xd6;
-view8[1132]=0xd8; view8[1133]=0xda; view8[1134]=0xdc; view8[1135]=0xde; view8[1136]=0xe0; view8[1137]=0xe2;
-view8[1138]=0xe4; view8[1139]=0xe6; view8[1140]=0xe8; view8[1141]=0xea; view8[1142]=0xec; view8[1143]=0xee;
-view8[1144]=0xf0; view8[1145]=0xf2; view8[1146]=0xf4; view8[1147]=0xf6; view8[1148]=0xf8; view8[1149]=0xfa;
-view8[1150]=0xfc; view8[1151]=0xfe; view8[1152]=0x1b; view8[1153]=0x19; view8[1154]=0x1f; view8[1155]=0x1d;
-view8[1156]=0x13; view8[1157]=0x11; view8[1158]=0x17; view8[1159]=0x15; view8[1160]=0x0b; view8[1161]=0x09;
-view8[1162]=0x0f; view8[1163]=0x0d; view8[1164]=0x03; view8[1165]=0x01; view8[1166]=0x07; view8[1167]=0x05;
-view8[1168]=0x3b; view8[1169]=0x39; view8[1170]=0x3f; view8[1171]=0x3d; view8[1172]=0x33; view8[1173]=0x31;
-view8[1174]=0x37; view8[1175]=0x35; view8[1176]=0x2b; view8[1177]=0x29; view8[1178]=0x2f; view8[1179]=0x2d;
-view8[1180]=0x23; view8[1181]=0x21; view8[1182]=0x27; view8[1183]=0x25; view8[1184]=0x5b; view8[1185]=0x59;
-view8[1186]=0x5f; view8[1187]=0x5d; view8[1188]=0x53; view8[1189]=0x51; view8[1190]=0x57; view8[1191]=0x55;
-view8[1192]=0x4b; view8[1193]=0x49; view8[1194]=0x4f; view8[1195]=0x4d; view8[1196]=0x43; view8[1197]=0x41;
-view8[1198]=0x47; view8[1199]=0x45; view8[1200]=0x7b; view8[1201]=0x79; view8[1202]=0x7f; view8[1203]=0x7d;
-view8[1204]=0x73; view8[1205]=0x71; view8[1206]=0x77; view8[1207]=0x75; view8[1208]=0x6b; view8[1209]=0x69;
-view8[1210]=0x6f; view8[1211]=0x6d; view8[1212]=0x63; view8[1213]=0x61; view8[1214]=0x67; view8[1215]=0x65;
-view8[1216]=0x9b; view8[1217]=0x99; view8[1218]=0x9f; view8[1219]=0x9d; view8[1220]=0x93; view8[1221]=0x91;
-view8[1222]=0x97; view8[1223]=0x95; view8[1224]=0x8b; view8[1225]=0x89; view8[1226]=0x8f; view8[1227]=0x8d;
-view8[1228]=0x83; view8[1229]=0x81; view8[1230]=0x87; view8[1231]=0x85; view8[1232]=0xbb; view8[1233]=0xb9;
-view8[1234]=0xbf; view8[1235]=0xbd; view8[1236]=0xb3; view8[1237]=0xb1; view8[1238]=0xb7; view8[1239]=0xb5;
-view8[1240]=0xab; view8[1241]=0xa9; view8[1242]=0xaf; view8[1243]=0xad; view8[1244]=0xa3; view8[1245]=0xa1;
-view8[1246]=0xa7; view8[1247]=0xa5; view8[1248]=0xdb; view8[1249]=0xd9; view8[1250]=0xdf; view8[1251]=0xdd;
-view8[1252]=0xd3; view8[1253]=0xd1; view8[1254]=0xd7; view8[1255]=0xd5; view8[1256]=0xcb; view8[1257]=0xc9;
-view8[1258]=0xcf; view8[1259]=0xcd; view8[1260]=0xc3; view8[1261]=0xc1; view8[1262]=0xc7; view8[1263]=0xc5;
-view8[1264]=0xfb; view8[1265]=0xf9; view8[1266]=0xff; view8[1267]=0xfd; view8[1268]=0xf3; view8[1269]=0xf1;
-view8[1270]=0xf7; view8[1271]=0xf5; view8[1272]=0xeb; view8[1273]=0xe9; view8[1274]=0xef; view8[1275]=0xed;
-view8[1276]=0xe3; view8[1277]=0xe1; view8[1278]=0xe7; view8[1279]=0xe5;
 // Load the Xtime9 lookup table
-view8[1280]=0x00; view8[1281]=0x09; view8[1282]=0x12; view8[1283]=0x1b; view8[1284]=0x24; view8[1285]=0x2d;
-view8[1286]=0x36; view8[1287]=0x3f; view8[1288]=0x48; view8[1289]=0x41; view8[1290]=0x5a; view8[1291]=0x53;
-view8[1292]=0x6c; view8[1293]=0x65; view8[1294]=0x7e; view8[1295]=0x77; view8[1296]=0x90; view8[1297]=0x99;
-view8[1298]=0x82; view8[1299]=0x8b; view8[1300]=0xb4; view8[1301]=0xbd; view8[1302]=0xa6; view8[1303]=0xaf;
-view8[1304]=0xd8; view8[1305]=0xd1; view8[1306]=0xca; view8[1307]=0xc3; view8[1308]=0xfc; view8[1309]=0xf5;
-view8[1310]=0xee; view8[1311]=0xe7; view8[1312]=0x3b; view8[1313]=0x32; view8[1314]=0x29; view8[1315]=0x20;
-view8[1316]=0x1f; view8[1317]=0x16; view8[1318]=0x0d; view8[1319]=0x04; view8[1320]=0x73; view8[1321]=0x7a;
-view8[1322]=0x61; view8[1323]=0x68; view8[1324]=0x57; view8[1325]=0x5e; view8[1326]=0x45; view8[1327]=0x4c;
-view8[1328]=0xab; view8[1329]=0xa2; view8[1330]=0xb9; view8[1331]=0xb0; view8[1332]=0x8f; view8[1333]=0x86;
-view8[1334]=0x9d; view8[1335]=0x94; view8[1336]=0xe3; view8[1337]=0xea; view8[1338]=0xf1; view8[1339]=0xf8;
-view8[1340]=0xc7; view8[1341]=0xce; view8[1342]=0xd5; view8[1343]=0xdc; view8[1344]=0x76; view8[1345]=0x7f;
-view8[1346]=0x64; view8[1347]=0x6d; view8[1348]=0x52; view8[1349]=0x5b; view8[1350]=0x40; view8[1351]=0x49;
-view8[1352]=0x3e; view8[1353]=0x37; view8[1354]=0x2c; view8[1355]=0x25; view8[1356]=0x1a; view8[1357]=0x13;
-view8[1358]=0x08; view8[1359]=0x01; view8[1360]=0xe6; view8[1361]=0xef; view8[1362]=0xf4; view8[1363]=0xfd;
-view8[1364]=0xc2; view8[1365]=0xcb; view8[1366]=0xd0; view8[1367]=0xd9; view8[1368]=0xae; view8[1369]=0xa7;
-view8[1370]=0xbc; view8[1371]=0xb5; view8[1372]=0x8a; view8[1373]=0x83; view8[1374]=0x98; view8[1375]=0x91;
-view8[1376]=0x4d; view8[1377]=0x44; view8[1378]=0x5f; view8[1379]=0x56; view8[1380]=0x69; view8[1381]=0x60;
-view8[1382]=0x7b; view8[1383]=0x72; view8[1384]=0x05; view8[1385]=0x0c; view8[1386]=0x17; view8[1387]=0x1e;
-view8[1388]=0x21; view8[1389]=0x28; view8[1390]=0x33; view8[1391]=0x3a; view8[1392]=0xdd; view8[1393]=0xd4;
-view8[1394]=0xcf; view8[1395]=0xc6; view8[1396]=0xf9; view8[1397]=0xf0; view8[1398]=0xeb; view8[1399]=0xe2;
-view8[1400]=0x95; view8[1401]=0x9c; view8[1402]=0x87; view8[1403]=0x8e; view8[1404]=0xb1; view8[1405]=0xb8;
-view8[1406]=0xa3; view8[1407]=0xaa; view8[1408]=0xec; view8[1409]=0xe5; view8[1410]=0xfe; view8[1411]=0xf7;
-view8[1412]=0xc8; view8[1413]=0xc1; view8[1414]=0xda; view8[1415]=0xd3; view8[1416]=0xa4; view8[1417]=0xad;
-view8[1418]=0xb6; view8[1419]=0xbf; view8[1420]=0x80; view8[1421]=0x89; view8[1422]=0x92; view8[1423]=0x9b;
-view8[1424]=0x7c; view8[1425]=0x75; view8[1426]=0x6e; view8[1427]=0x67; view8[1428]=0x58; view8[1429]=0x51;
-view8[1430]=0x4a; view8[1431]=0x43; view8[1432]=0x34; view8[1433]=0x3d; view8[1434]=0x26; view8[1435]=0x2f;
-view8[1436]=0x10; view8[1437]=0x19; view8[1438]=0x02; view8[1439]=0x0b; view8[1440]=0xd7; view8[1441]=0xde;
-view8[1442]=0xc5; view8[1443]=0xcc; view8[1444]=0xf3; view8[1445]=0xfa; view8[1446]=0xe1; view8[1447]=0xe8;
-view8[1448]=0x9f; view8[1449]=0x96; view8[1450]=0x8d; view8[1451]=0x84; view8[1452]=0xbb; view8[1453]=0xb2;
-view8[1454]=0xa9; view8[1455]=0xa0; view8[1456]=0x47; view8[1457]=0x4e; view8[1458]=0x55; view8[1459]=0x5c;
-view8[1460]=0x63; view8[1461]=0x6a; view8[1462]=0x71; view8[1463]=0x78; view8[1464]=0x0f; view8[1465]=0x06;
-view8[1466]=0x1d; view8[1467]=0x14; view8[1468]=0x2b; view8[1469]=0x22; view8[1470]=0x39; view8[1471]=0x30;
-view8[1472]=0x9a; view8[1473]=0x93; view8[1474]=0x88; view8[1475]=0x81; view8[1476]=0xbe; view8[1477]=0xb7;
-view8[1478]=0xac; view8[1479]=0xa5; view8[1480]=0xd2; view8[1481]=0xdb; view8[1482]=0xc0; view8[1483]=0xc9;
-view8[1484]=0xf6; view8[1485]=0xff; view8[1486]=0xe4; view8[1487]=0xed; view8[1488]=0x0a; view8[1489]=0x03;
-view8[1490]=0x18; view8[1491]=0x11; view8[1492]=0x2e; view8[1493]=0x27; view8[1494]=0x3c; view8[1495]=0x35;
-view8[1496]=0x42; view8[1497]=0x4b; view8[1498]=0x50; view8[1499]=0x59; view8[1500]=0x66; view8[1501]=0x6f;
-view8[1502]=0x74; view8[1503]=0x7d; view8[1504]=0xa1; view8[1505]=0xa8; view8[1506]=0xb3; view8[1507]=0xba;
-view8[1508]=0x85; view8[1509]=0x8c; view8[1510]=0x97; view8[1511]=0x9e; view8[1512]=0xe9; view8[1513]=0xe0;
-view8[1514]=0xfb; view8[1515]=0xf2; view8[1516]=0xcd; view8[1517]=0xc4; view8[1518]=0xdf; view8[1519]=0xd6;
-view8[1520]=0x31; view8[1521]=0x38; view8[1522]=0x23; view8[1523]=0x2a; view8[1524]=0x15; view8[1525]=0x1c;
-view8[1526]=0x07; view8[1527]=0x0e; view8[1528]=0x79; view8[1529]=0x70; view8[1530]=0x6b; view8[1531]=0x62;
-view8[1532]=0x5d; view8[1533]=0x54; view8[1534]=0x4f; view8[1535]=0x46;
+view8[1024]=0x00; view8[1025]=0x09; view8[1026]=0x12; view8[1027]=0x1b; view8[1028]=0x24; view8[1029]=0x2d;
+view8[1030]=0x36; view8[1031]=0x3f; view8[1032]=0x48; view8[1033]=0x41; view8[1034]=0x5a; view8[1035]=0x53;
+view8[1036]=0x6c; view8[1037]=0x65; view8[1038]=0x7e; view8[1039]=0x77; view8[1040]=0x90; view8[1041]=0x99;
+view8[1042]=0x82; view8[1043]=0x8b; view8[1044]=0xb4; view8[1045]=0xbd; view8[1046]=0xa6; view8[1047]=0xaf;
+view8[1048]=0xd8; view8[1049]=0xd1; view8[1050]=0xca; view8[1051]=0xc3; view8[1052]=0xfc; view8[1053]=0xf5;
+view8[1054]=0xee; view8[1055]=0xe7; view8[1056]=0x3b; view8[1057]=0x32; view8[1058]=0x29; view8[1059]=0x20;
+view8[1060]=0x1f; view8[1061]=0x16; view8[1062]=0x0d; view8[1063]=0x04; view8[1064]=0x73; view8[1065]=0x7a;
+view8[1066]=0x61; view8[1067]=0x68; view8[1068]=0x57; view8[1069]=0x5e; view8[1070]=0x45; view8[1071]=0x4c;
+view8[1072]=0xab; view8[1073]=0xa2; view8[1074]=0xb9; view8[1075]=0xb0; view8[1076]=0x8f; view8[1077]=0x86;
+view8[1078]=0x9d; view8[1079]=0x94; view8[1080]=0xe3; view8[1081]=0xea; view8[1082]=0xf1; view8[1083]=0xf8;
+view8[1084]=0xc7; view8[1085]=0xce; view8[1086]=0xd5; view8[1087]=0xdc; view8[1088]=0x76; view8[1089]=0x7f;
+view8[1090]=0x64; view8[1091]=0x6d; view8[1092]=0x52; view8[1093]=0x5b; view8[1094]=0x40; view8[1095]=0x49;
+view8[1096]=0x3e; view8[1097]=0x37; view8[1098]=0x2c; view8[1099]=0x25; view8[1100]=0x1a; view8[1101]=0x13;
+view8[1102]=0x08; view8[1103]=0x01; view8[1104]=0xe6; view8[1105]=0xef; view8[1106]=0xf4; view8[1107]=0xfd;
+view8[1108]=0xc2; view8[1109]=0xcb; view8[1110]=0xd0; view8[1111]=0xd9; view8[1112]=0xae; view8[1113]=0xa7;
+view8[1114]=0xbc; view8[1115]=0xb5; view8[1116]=0x8a; view8[1117]=0x83; view8[1118]=0x98; view8[1119]=0x91;
+view8[1120]=0x4d; view8[1121]=0x44; view8[1122]=0x5f; view8[1123]=0x56; view8[1124]=0x69; view8[1125]=0x60;
+view8[1126]=0x7b; view8[1127]=0x72; view8[1128]=0x05; view8[1129]=0x0c; view8[1130]=0x17; view8[1131]=0x1e;
+view8[1132]=0x21; view8[1133]=0x28; view8[1134]=0x33; view8[1135]=0x3a; view8[1136]=0xdd; view8[1137]=0xd4;
+view8[1138]=0xcf; view8[1139]=0xc6; view8[1140]=0xf9; view8[1141]=0xf0; view8[1142]=0xeb; view8[1143]=0xe2;
+view8[1144]=0x95; view8[1145]=0x9c; view8[1146]=0x87; view8[1147]=0x8e; view8[1148]=0xb1; view8[1149]=0xb8;
+view8[1150]=0xa3; view8[1151]=0xaa; view8[1152]=0xec; view8[1153]=0xe5; view8[1154]=0xfe; view8[1155]=0xf7;
+view8[1156]=0xc8; view8[1157]=0xc1; view8[1158]=0xda; view8[1159]=0xd3; view8[1160]=0xa4; view8[1161]=0xad;
+view8[1162]=0xb6; view8[1163]=0xbf; view8[1164]=0x80; view8[1165]=0x89; view8[1166]=0x92; view8[1167]=0x9b;
+view8[1168]=0x7c; view8[1169]=0x75; view8[1170]=0x6e; view8[1171]=0x67; view8[1172]=0x58; view8[1173]=0x51;
+view8[1174]=0x4a; view8[1175]=0x43; view8[1176]=0x34; view8[1177]=0x3d; view8[1178]=0x26; view8[1179]=0x2f;
+view8[1180]=0x10; view8[1181]=0x19; view8[1182]=0x02; view8[1183]=0x0b; view8[1184]=0xd7; view8[1185]=0xde;
+view8[1186]=0xc5; view8[1187]=0xcc; view8[1188]=0xf3; view8[1189]=0xfa; view8[1190]=0xe1; view8[1191]=0xe8;
+view8[1192]=0x9f; view8[1193]=0x96; view8[1194]=0x8d; view8[1195]=0x84; view8[1196]=0xbb; view8[1197]=0xb2;
+view8[1198]=0xa9; view8[1199]=0xa0; view8[1200]=0x47; view8[1201]=0x4e; view8[1202]=0x55; view8[1203]=0x5c;
+view8[1204]=0x63; view8[1205]=0x6a; view8[1206]=0x71; view8[1207]=0x78; view8[1208]=0x0f; view8[1209]=0x06;
+view8[1210]=0x1d; view8[1211]=0x14; view8[1212]=0x2b; view8[1213]=0x22; view8[1214]=0x39; view8[1215]=0x30;
+view8[1216]=0x9a; view8[1217]=0x93; view8[1218]=0x88; view8[1219]=0x81; view8[1220]=0xbe; view8[1221]=0xb7;
+view8[1222]=0xac; view8[1223]=0xa5; view8[1224]=0xd2; view8[1225]=0xdb; view8[1226]=0xc0; view8[1227]=0xc9;
+view8[1228]=0xf6; view8[1229]=0xff; view8[1230]=0xe4; view8[1231]=0xed; view8[1232]=0x0a; view8[1233]=0x03;
+view8[1234]=0x18; view8[1235]=0x11; view8[1236]=0x2e; view8[1237]=0x27; view8[1238]=0x3c; view8[1239]=0x35;
+view8[1240]=0x42; view8[1241]=0x4b; view8[1242]=0x50; view8[1243]=0x59; view8[1244]=0x66; view8[1245]=0x6f;
+view8[1246]=0x74; view8[1247]=0x7d; view8[1248]=0xa1; view8[1249]=0xa8; view8[1250]=0xb3; view8[1251]=0xba;
+view8[1252]=0x85; view8[1253]=0x8c; view8[1254]=0x97; view8[1255]=0x9e; view8[1256]=0xe9; view8[1257]=0xe0;
+view8[1258]=0xfb; view8[1259]=0xf2; view8[1260]=0xcd; view8[1261]=0xc4; view8[1262]=0xdf; view8[1263]=0xd6;
+view8[1264]=0x31; view8[1265]=0x38; view8[1266]=0x23; view8[1267]=0x2a; view8[1268]=0x15; view8[1269]=0x1c;
+view8[1270]=0x07; view8[1271]=0x0e; view8[1272]=0x79; view8[1273]=0x70; view8[1274]=0x6b; view8[1275]=0x62;
+view8[1276]=0x5d; view8[1277]=0x54; view8[1278]=0x4f; view8[1279]=0x46;
 // Load the XtimeB lookup table
-view8[1536]=0x00; view8[1537]=0x0b; view8[1538]=0x16; view8[1539]=0x1d; view8[1540]=0x2c; view8[1541]=0x27;
-view8[1542]=0x3a; view8[1543]=0x31; view8[1544]=0x58; view8[1545]=0x53; view8[1546]=0x4e; view8[1547]=0x45;
-view8[1548]=0x74; view8[1549]=0x7f; view8[1550]=0x62; view8[1551]=0x69; view8[1552]=0xb0; view8[1553]=0xbb;
-view8[1554]=0xa6; view8[1555]=0xad; view8[1556]=0x9c; view8[1557]=0x97; view8[1558]=0x8a; view8[1559]=0x81;
-view8[1560]=0xe8; view8[1561]=0xe3; view8[1562]=0xfe; view8[1563]=0xf5; view8[1564]=0xc4; view8[1565]=0xcf;
-view8[1566]=0xd2; view8[1567]=0xd9; view8[1568]=0x7b; view8[1569]=0x70; view8[1570]=0x6d; view8[1571]=0x66;
-view8[1572]=0x57; view8[1573]=0x5c; view8[1574]=0x41; view8[1575]=0x4a; view8[1576]=0x23; view8[1577]=0x28;
-view8[1578]=0x35; view8[1579]=0x3e; view8[1580]=0x0f; view8[1581]=0x04; view8[1582]=0x19; view8[1583]=0x12;
-view8[1584]=0xcb; view8[1585]=0xc0; view8[1586]=0xdd; view8[1587]=0xd6; view8[1588]=0xe7; view8[1589]=0xec;
-view8[1590]=0xf1; view8[1591]=0xfa; view8[1592]=0x93; view8[1593]=0x98; view8[1594]=0x85; view8[1595]=0x8e;
-view8[1596]=0xbf; view8[1597]=0xb4; view8[1598]=0xa9; view8[1599]=0xa2; view8[1600]=0xf6; view8[1601]=0xfd;
-view8[1602]=0xe0; view8[1603]=0xeb; view8[1604]=0xda; view8[1605]=0xd1; view8[1606]=0xcc; view8[1607]=0xc7;
-view8[1608]=0xae; view8[1609]=0xa5; view8[1610]=0xb8; view8[1611]=0xb3; view8[1612]=0x82; view8[1613]=0x89;
-view8[1614]=0x94; view8[1615]=0x9f; view8[1616]=0x46; view8[1617]=0x4d; view8[1618]=0x50; view8[1619]=0x5b;
-view8[1620]=0x6a; view8[1621]=0x61; view8[1622]=0x7c; view8[1623]=0x77; view8[1624]=0x1e; view8[1625]=0x15;
-view8[1626]=0x08; view8[1627]=0x03; view8[1628]=0x32; view8[1629]=0x39; view8[1630]=0x24; view8[1631]=0x2f;
-view8[1632]=0x8d; view8[1633]=0x86; view8[1634]=0x9b; view8[1635]=0x90; view8[1636]=0xa1; view8[1637]=0xaa;
-view8[1638]=0xb7; view8[1639]=0xbc; view8[1640]=0xd5; view8[1641]=0xde; view8[1642]=0xc3; view8[1643]=0xc8;
-view8[1644]=0xf9; view8[1645]=0xf2; view8[1646]=0xef; view8[1647]=0xe4; view8[1648]=0x3d; view8[1649]=0x36;
-view8[1650]=0x2b; view8[1651]=0x20; view8[1652]=0x11; view8[1653]=0x1a; view8[1654]=0x07; view8[1655]=0x0c;
-view8[1656]=0x65; view8[1657]=0x6e; view8[1658]=0x73; view8[1659]=0x78; view8[1660]=0x49; view8[1661]=0x42;
-view8[1662]=0x5f; view8[1663]=0x54; view8[1664]=0xf7; view8[1665]=0xfc; view8[1666]=0xe1; view8[1667]=0xea;
-view8[1668]=0xdb; view8[1669]=0xd0; view8[1670]=0xcd; view8[1671]=0xc6; view8[1672]=0xaf; view8[1673]=0xa4;
-view8[1674]=0xb9; view8[1675]=0xb2; view8[1676]=0x83; view8[1677]=0x88; view8[1678]=0x95; view8[1679]=0x9e;
-view8[1680]=0x47; view8[1681]=0x4c; view8[1682]=0x51; view8[1683]=0x5a; view8[1684]=0x6b; view8[1685]=0x60;
-view8[1686]=0x7d; view8[1687]=0x76; view8[1688]=0x1f; view8[1689]=0x14; view8[1690]=0x09; view8[1691]=0x02;
-view8[1692]=0x33; view8[1693]=0x38; view8[1694]=0x25; view8[1695]=0x2e; view8[1696]=0x8c; view8[1697]=0x87;
-view8[1698]=0x9a; view8[1699]=0x91; view8[1700]=0xa0; view8[1701]=0xab; view8[1702]=0xb6; view8[1703]=0xbd;
-view8[1704]=0xd4; view8[1705]=0xdf; view8[1706]=0xc2; view8[1707]=0xc9; view8[1708]=0xf8; view8[1709]=0xf3;
-view8[1710]=0xee; view8[1711]=0xe5; view8[1712]=0x3c; view8[1713]=0x37; view8[1714]=0x2a; view8[1715]=0x21;
-view8[1716]=0x10; view8[1717]=0x1b; view8[1718]=0x06; view8[1719]=0x0d; view8[1720]=0x64; view8[1721]=0x6f;
-view8[1722]=0x72; view8[1723]=0x79; view8[1724]=0x48; view8[1725]=0x43; view8[1726]=0x5e; view8[1727]=0x55;
-view8[1728]=0x01; view8[1729]=0x0a; view8[1730]=0x17; view8[1731]=0x1c; view8[1732]=0x2d; view8[1733]=0x26;
-view8[1734]=0x3b; view8[1735]=0x30; view8[1736]=0x59; view8[1737]=0x52; view8[1738]=0x4f; view8[1739]=0x44;
-view8[1740]=0x75; view8[1741]=0x7e; view8[1742]=0x63; view8[1743]=0x68; view8[1744]=0xb1; view8[1745]=0xba;
-view8[1746]=0xa7; view8[1747]=0xac; view8[1748]=0x9d; view8[1749]=0x96; view8[1750]=0x8b; view8[1751]=0x80;
-view8[1752]=0xe9; view8[1753]=0xe2; view8[1754]=0xff; view8[1755]=0xf4; view8[1756]=0xc5; view8[1757]=0xce;
-view8[1758]=0xd3; view8[1759]=0xd8; view8[1760]=0x7a; view8[1761]=0x71; view8[1762]=0x6c; view8[1763]=0x67;
-view8[1764]=0x56; view8[1765]=0x5d; view8[1766]=0x40; view8[1767]=0x4b; view8[1768]=0x22; view8[1769]=0x29;
-view8[1770]=0x34; view8[1771]=0x3f; view8[1772]=0x0e; view8[1773]=0x05; view8[1774]=0x18; view8[1775]=0x13;
-view8[1776]=0xca; view8[1777]=0xc1; view8[1778]=0xdc; view8[1779]=0xd7; view8[1780]=0xe6; view8[1781]=0xed;
-view8[1782]=0xf0; view8[1783]=0xfb; view8[1784]=0x92; view8[1785]=0x99; view8[1786]=0x84; view8[1787]=0x8f;
-view8[1788]=0xbe; view8[1789]=0xb5; view8[1790]=0xa8; view8[1791]=0xa3;
+view8[1280]=0x00; view8[1281]=0x0b; view8[1282]=0x16; view8[1283]=0x1d; view8[1284]=0x2c; view8[1285]=0x27;
+view8[1286]=0x3a; view8[1287]=0x31; view8[1288]=0x58; view8[1289]=0x53; view8[1290]=0x4e; view8[1291]=0x45;
+view8[1292]=0x74; view8[1293]=0x7f; view8[1294]=0x62; view8[1295]=0x69; view8[1296]=0xb0; view8[1297]=0xbb;
+view8[1298]=0xa6; view8[1299]=0xad; view8[1300]=0x9c; view8[1301]=0x97; view8[1302]=0x8a; view8[1303]=0x81;
+view8[1304]=0xe8; view8[1305]=0xe3; view8[1306]=0xfe; view8[1307]=0xf5; view8[1308]=0xc4; view8[1309]=0xcf;
+view8[1310]=0xd2; view8[1311]=0xd9; view8[1312]=0x7b; view8[1313]=0x70; view8[1314]=0x6d; view8[1315]=0x66;
+view8[1316]=0x57; view8[1317]=0x5c; view8[1318]=0x41; view8[1319]=0x4a; view8[1320]=0x23; view8[1321]=0x28;
+view8[1322]=0x35; view8[1323]=0x3e; view8[1324]=0x0f; view8[1325]=0x04; view8[1326]=0x19; view8[1327]=0x12;
+view8[1328]=0xcb; view8[1329]=0xc0; view8[1330]=0xdd; view8[1331]=0xd6; view8[1332]=0xe7; view8[1333]=0xec;
+view8[1334]=0xf1; view8[1335]=0xfa; view8[1336]=0x93; view8[1337]=0x98; view8[1338]=0x85; view8[1339]=0x8e;
+view8[1340]=0xbf; view8[1341]=0xb4; view8[1342]=0xa9; view8[1343]=0xa2; view8[1344]=0xf6; view8[1345]=0xfd;
+view8[1346]=0xe0; view8[1347]=0xeb; view8[1348]=0xda; view8[1349]=0xd1; view8[1350]=0xcc; view8[1351]=0xc7;
+view8[1352]=0xae; view8[1353]=0xa5; view8[1354]=0xb8; view8[1355]=0xb3; view8[1356]=0x82; view8[1357]=0x89;
+view8[1358]=0x94; view8[1359]=0x9f; view8[1360]=0x46; view8[1361]=0x4d; view8[1362]=0x50; view8[1363]=0x5b;
+view8[1364]=0x6a; view8[1365]=0x61; view8[1366]=0x7c; view8[1367]=0x77; view8[1368]=0x1e; view8[1369]=0x15;
+view8[1370]=0x08; view8[1371]=0x03; view8[1372]=0x32; view8[1373]=0x39; view8[1374]=0x24; view8[1375]=0x2f;
+view8[1376]=0x8d; view8[1377]=0x86; view8[1378]=0x9b; view8[1379]=0x90; view8[1380]=0xa1; view8[1381]=0xaa;
+view8[1382]=0xb7; view8[1383]=0xbc; view8[1384]=0xd5; view8[1385]=0xde; view8[1386]=0xc3; view8[1387]=0xc8;
+view8[1388]=0xf9; view8[1389]=0xf2; view8[1390]=0xef; view8[1391]=0xe4; view8[1392]=0x3d; view8[1393]=0x36;
+view8[1394]=0x2b; view8[1395]=0x20; view8[1396]=0x11; view8[1397]=0x1a; view8[1398]=0x07; view8[1399]=0x0c;
+view8[1400]=0x65; view8[1401]=0x6e; view8[1402]=0x73; view8[1403]=0x78; view8[1404]=0x49; view8[1405]=0x42;
+view8[1406]=0x5f; view8[1407]=0x54; view8[1408]=0xf7; view8[1409]=0xfc; view8[1410]=0xe1; view8[1411]=0xea;
+view8[1412]=0xdb; view8[1413]=0xd0; view8[1414]=0xcd; view8[1415]=0xc6; view8[1416]=0xaf; view8[1417]=0xa4;
+view8[1418]=0xb9; view8[1419]=0xb2; view8[1420]=0x83; view8[1421]=0x88; view8[1422]=0x95; view8[1423]=0x9e;
+view8[1424]=0x47; view8[1425]=0x4c; view8[1426]=0x51; view8[1427]=0x5a; view8[1428]=0x6b; view8[1429]=0x60;
+view8[1430]=0x7d; view8[1431]=0x76; view8[1432]=0x1f; view8[1433]=0x14; view8[1434]=0x09; view8[1435]=0x02;
+view8[1436]=0x33; view8[1437]=0x38; view8[1438]=0x25; view8[1439]=0x2e; view8[1440]=0x8c; view8[1441]=0x87;
+view8[1442]=0x9a; view8[1443]=0x91; view8[1444]=0xa0; view8[1445]=0xab; view8[1446]=0xb6; view8[1447]=0xbd;
+view8[1448]=0xd4; view8[1449]=0xdf; view8[1450]=0xc2; view8[1451]=0xc9; view8[1452]=0xf8; view8[1453]=0xf3;
+view8[1454]=0xee; view8[1455]=0xe5; view8[1456]=0x3c; view8[1457]=0x37; view8[1458]=0x2a; view8[1459]=0x21;
+view8[1460]=0x10; view8[1461]=0x1b; view8[1462]=0x06; view8[1463]=0x0d; view8[1464]=0x64; view8[1465]=0x6f;
+view8[1466]=0x72; view8[1467]=0x79; view8[1468]=0x48; view8[1469]=0x43; view8[1470]=0x5e; view8[1471]=0x55;
+view8[1472]=0x01; view8[1473]=0x0a; view8[1474]=0x17; view8[1475]=0x1c; view8[1476]=0x2d; view8[1477]=0x26;
+view8[1478]=0x3b; view8[1479]=0x30; view8[1480]=0x59; view8[1481]=0x52; view8[1482]=0x4f; view8[1483]=0x44;
+view8[1484]=0x75; view8[1485]=0x7e; view8[1486]=0x63; view8[1487]=0x68; view8[1488]=0xb1; view8[1489]=0xba;
+view8[1490]=0xa7; view8[1491]=0xac; view8[1492]=0x9d; view8[1493]=0x96; view8[1494]=0x8b; view8[1495]=0x80;
+view8[1496]=0xe9; view8[1497]=0xe2; view8[1498]=0xff; view8[1499]=0xf4; view8[1500]=0xc5; view8[1501]=0xce;
+view8[1502]=0xd3; view8[1503]=0xd8; view8[1504]=0x7a; view8[1505]=0x71; view8[1506]=0x6c; view8[1507]=0x67;
+view8[1508]=0x56; view8[1509]=0x5d; view8[1510]=0x40; view8[1511]=0x4b; view8[1512]=0x22; view8[1513]=0x29;
+view8[1514]=0x34; view8[1515]=0x3f; view8[1516]=0x0e; view8[1517]=0x05; view8[1518]=0x18; view8[1519]=0x13;
+view8[1520]=0xca; view8[1521]=0xc1; view8[1522]=0xdc; view8[1523]=0xd7; view8[1524]=0xe6; view8[1525]=0xed;
+view8[1526]=0xf0; view8[1527]=0xfb; view8[1528]=0x92; view8[1529]=0x99; view8[1530]=0x84; view8[1531]=0x8f;
+view8[1532]=0xbe; view8[1533]=0xb5; view8[1534]=0xa8; view8[1535]=0xa3;
 // Load the XtimeD lookup table
-view8[1792]=0x00; view8[1793]=0x0d; view8[1794]=0x1a; view8[1795]=0x17; view8[1796]=0x34; view8[1797]=0x39;
-view8[1798]=0x2e; view8[1799]=0x23; view8[1800]=0x68; view8[1801]=0x65; view8[1802]=0x72; view8[1803]=0x7f;
-view8[1804]=0x5c; view8[1805]=0x51; view8[1806]=0x46; view8[1807]=0x4b; view8[1808]=0xd0; view8[1809]=0xdd;
-view8[1810]=0xca; view8[1811]=0xc7; view8[1812]=0xe4; view8[1813]=0xe9; view8[1814]=0xfe; view8[1815]=0xf3;
-view8[1816]=0xb8; view8[1817]=0xb5; view8[1818]=0xa2; view8[1819]=0xaf; view8[1820]=0x8c; view8[1821]=0x81;
-view8[1822]=0x96; view8[1823]=0x9b; view8[1824]=0xbb; view8[1825]=0xb6; view8[1826]=0xa1; view8[1827]=0xac;
-view8[1828]=0x8f; view8[1829]=0x82; view8[1830]=0x95; view8[1831]=0x98; view8[1832]=0xd3; view8[1833]=0xde;
-view8[1834]=0xc9; view8[1835]=0xc4; view8[1836]=0xe7; view8[1837]=0xea; view8[1838]=0xfd; view8[1839]=0xf0;
-view8[1840]=0x6b; view8[1841]=0x66; view8[1842]=0x71; view8[1843]=0x7c; view8[1844]=0x5f; view8[1845]=0x52;
-view8[1846]=0x45; view8[1847]=0x48; view8[1848]=0x03; view8[1849]=0x0e; view8[1850]=0x19; view8[1851]=0x14;
-view8[1852]=0x37; view8[1853]=0x3a; view8[1854]=0x2d; view8[1855]=0x20; view8[1856]=0x6d; view8[1857]=0x60;
-view8[1858]=0x77; view8[1859]=0x7a; view8[1860]=0x59; view8[1861]=0x54; view8[1862]=0x43; view8[1863]=0x4e;
-view8[1864]=0x05; view8[1865]=0x08; view8[1866]=0x1f; view8[1867]=0x12; view8[1868]=0x31; view8[1869]=0x3c;
-view8[1870]=0x2b; view8[1871]=0x26; view8[1872]=0xbd; view8[1873]=0xb0; view8[1874]=0xa7; view8[1875]=0xaa;
-view8[1876]=0x89; view8[1877]=0x84; view8[1878]=0x93; view8[1879]=0x9e; view8[1880]=0xd5; view8[1881]=0xd8;
-view8[1882]=0xcf; view8[1883]=0xc2; view8[1884]=0xe1; view8[1885]=0xec; view8[1886]=0xfb; view8[1887]=0xf6;
-view8[1888]=0xd6; view8[1889]=0xdb; view8[1890]=0xcc; view8[1891]=0xc1; view8[1892]=0xe2; view8[1893]=0xef;
-view8[1894]=0xf8; view8[1895]=0xf5; view8[1896]=0xbe; view8[1897]=0xb3; view8[1898]=0xa4; view8[1899]=0xa9;
-view8[1900]=0x8a; view8[1901]=0x87; view8[1902]=0x90; view8[1903]=0x9d; view8[1904]=0x06; view8[1905]=0x0b;
-view8[1906]=0x1c; view8[1907]=0x11; view8[1908]=0x32; view8[1909]=0x3f; view8[1910]=0x28; view8[1911]=0x25;
-view8[1912]=0x6e; view8[1913]=0x63; view8[1914]=0x74; view8[1915]=0x79; view8[1916]=0x5a; view8[1917]=0x57;
-view8[1918]=0x40; view8[1919]=0x4d; view8[1920]=0xda; view8[1921]=0xd7; view8[1922]=0xc0; view8[1923]=0xcd;
-view8[1924]=0xee; view8[1925]=0xe3; view8[1926]=0xf4; view8[1927]=0xf9; view8[1928]=0xb2; view8[1929]=0xbf;
-view8[1930]=0xa8; view8[1931]=0xa5; view8[1932]=0x86; view8[1933]=0x8b; view8[1934]=0x9c; view8[1935]=0x91;
-view8[1936]=0x0a; view8[1937]=0x07; view8[1938]=0x10; view8[1939]=0x1d; view8[1940]=0x3e; view8[1941]=0x33;
-view8[1942]=0x24; view8[1943]=0x29; view8[1944]=0x62; view8[1945]=0x6f; view8[1946]=0x78; view8[1947]=0x75;
-view8[1948]=0x56; view8[1949]=0x5b; view8[1950]=0x4c; view8[1951]=0x41; view8[1952]=0x61; view8[1953]=0x6c;
-view8[1954]=0x7b; view8[1955]=0x76; view8[1956]=0x55; view8[1957]=0x58; view8[1958]=0x4f; view8[1959]=0x42;
-view8[1960]=0x09; view8[1961]=0x04; view8[1962]=0x13; view8[1963]=0x1e; view8[1964]=0x3d; view8[1965]=0x30;
-view8[1966]=0x27; view8[1967]=0x2a; view8[1968]=0xb1; view8[1969]=0xbc; view8[1970]=0xab; view8[1971]=0xa6;
-view8[1972]=0x85; view8[1973]=0x88; view8[1974]=0x9f; view8[1975]=0x92; view8[1976]=0xd9; view8[1977]=0xd4;
-view8[1978]=0xc3; view8[1979]=0xce; view8[1980]=0xed; view8[1981]=0xe0; view8[1982]=0xf7; view8[1983]=0xfa;
-view8[1984]=0xb7; view8[1985]=0xba; view8[1986]=0xad; view8[1987]=0xa0; view8[1988]=0x83; view8[1989]=0x8e;
-view8[1990]=0x99; view8[1991]=0x94; view8[1992]=0xdf; view8[1993]=0xd2; view8[1994]=0xc5; view8[1995]=0xc8;
-view8[1996]=0xeb; view8[1997]=0xe6; view8[1998]=0xf1; view8[1999]=0xfc; view8[2000]=0x67; view8[2001]=0x6a;
-view8[2002]=0x7d; view8[2003]=0x70; view8[2004]=0x53; view8[2005]=0x5e; view8[2006]=0x49; view8[2007]=0x44;
-view8[2008]=0x0f; view8[2009]=0x02; view8[2010]=0x15; view8[2011]=0x18; view8[2012]=0x3b; view8[2013]=0x36;
-view8[2014]=0x21; view8[2015]=0x2c; view8[2016]=0x0c; view8[2017]=0x01; view8[2018]=0x16; view8[2019]=0x1b;
-view8[2020]=0x38; view8[2021]=0x35; view8[2022]=0x22; view8[2023]=0x2f; view8[2024]=0x64; view8[2025]=0x69;
-view8[2026]=0x7e; view8[2027]=0x73; view8[2028]=0x50; view8[2029]=0x5d; view8[2030]=0x4a; view8[2031]=0x47;
-view8[2032]=0xdc; view8[2033]=0xd1; view8[2034]=0xc6; view8[2035]=0xcb; view8[2036]=0xe8; view8[2037]=0xe5;
-view8[2038]=0xf2; view8[2039]=0xff; view8[2040]=0xb4; view8[2041]=0xb9; view8[2042]=0xae; view8[2043]=0xa3;
-view8[2044]=0x80; view8[2045]=0x8d; view8[2046]=0x9a; view8[2047]=0x97;
+view8[1536]=0x00; view8[1537]=0x0d; view8[1538]=0x1a; view8[1539]=0x17; view8[1540]=0x34; view8[1541]=0x39;
+view8[1542]=0x2e; view8[1543]=0x23; view8[1544]=0x68; view8[1545]=0x65; view8[1546]=0x72; view8[1547]=0x7f;
+view8[1548]=0x5c; view8[1549]=0x51; view8[1550]=0x46; view8[1551]=0x4b; view8[1552]=0xd0; view8[1553]=0xdd;
+view8[1554]=0xca; view8[1555]=0xc7; view8[1556]=0xe4; view8[1557]=0xe9; view8[1558]=0xfe; view8[1559]=0xf3;
+view8[1560]=0xb8; view8[1561]=0xb5; view8[1562]=0xa2; view8[1563]=0xaf; view8[1564]=0x8c; view8[1565]=0x81;
+view8[1566]=0x96; view8[1567]=0x9b; view8[1568]=0xbb; view8[1569]=0xb6; view8[1570]=0xa1; view8[1571]=0xac;
+view8[1572]=0x8f; view8[1573]=0x82; view8[1574]=0x95; view8[1575]=0x98; view8[1576]=0xd3; view8[1577]=0xde;
+view8[1578]=0xc9; view8[1579]=0xc4; view8[1580]=0xe7; view8[1581]=0xea; view8[1582]=0xfd; view8[1583]=0xf0;
+view8[1584]=0x6b; view8[1585]=0x66; view8[1586]=0x71; view8[1587]=0x7c; view8[1588]=0x5f; view8[1589]=0x52;
+view8[1590]=0x45; view8[1591]=0x48; view8[1592]=0x03; view8[1593]=0x0e; view8[1594]=0x19; view8[1595]=0x14;
+view8[1596]=0x37; view8[1597]=0x3a; view8[1598]=0x2d; view8[1599]=0x20; view8[1600]=0x6d; view8[1601]=0x60;
+view8[1602]=0x77; view8[1603]=0x7a; view8[1604]=0x59; view8[1605]=0x54; view8[1606]=0x43; view8[1607]=0x4e;
+view8[1608]=0x05; view8[1609]=0x08; view8[1610]=0x1f; view8[1611]=0x12; view8[1612]=0x31; view8[1613]=0x3c;
+view8[1614]=0x2b; view8[1615]=0x26; view8[1616]=0xbd; view8[1617]=0xb0; view8[1618]=0xa7; view8[1619]=0xaa;
+view8[1620]=0x89; view8[1621]=0x84; view8[1622]=0x93; view8[1623]=0x9e; view8[1624]=0xd5; view8[1625]=0xd8;
+view8[1626]=0xcf; view8[1627]=0xc2; view8[1628]=0xe1; view8[1629]=0xec; view8[1630]=0xfb; view8[1631]=0xf6;
+view8[1632]=0xd6; view8[1633]=0xdb; view8[1634]=0xcc; view8[1635]=0xc1; view8[1636]=0xe2; view8[1637]=0xef;
+view8[1638]=0xf8; view8[1639]=0xf5; view8[1640]=0xbe; view8[1641]=0xb3; view8[1642]=0xa4; view8[1643]=0xa9;
+view8[1644]=0x8a; view8[1645]=0x87; view8[1646]=0x90; view8[1647]=0x9d; view8[1648]=0x06; view8[1649]=0x0b;
+view8[1650]=0x1c; view8[1651]=0x11; view8[1652]=0x32; view8[1653]=0x3f; view8[1654]=0x28; view8[1655]=0x25;
+view8[1656]=0x6e; view8[1657]=0x63; view8[1658]=0x74; view8[1659]=0x79; view8[1660]=0x5a; view8[1661]=0x57;
+view8[1662]=0x40; view8[1663]=0x4d; view8[1664]=0xda; view8[1665]=0xd7; view8[1666]=0xc0; view8[1667]=0xcd;
+view8[1668]=0xee; view8[1669]=0xe3; view8[1670]=0xf4; view8[1671]=0xf9; view8[1672]=0xb2; view8[1673]=0xbf;
+view8[1674]=0xa8; view8[1675]=0xa5; view8[1676]=0x86; view8[1677]=0x8b; view8[1678]=0x9c; view8[1679]=0x91;
+view8[1680]=0x0a; view8[1681]=0x07; view8[1682]=0x10; view8[1683]=0x1d; view8[1684]=0x3e; view8[1685]=0x33;
+view8[1686]=0x24; view8[1687]=0x29; view8[1688]=0x62; view8[1689]=0x6f; view8[1690]=0x78; view8[1691]=0x75;
+view8[1692]=0x56; view8[1693]=0x5b; view8[1694]=0x4c; view8[1695]=0x41; view8[1696]=0x61; view8[1697]=0x6c;
+view8[1698]=0x7b; view8[1699]=0x76; view8[1700]=0x55; view8[1701]=0x58; view8[1702]=0x4f; view8[1703]=0x42;
+view8[1704]=0x09; view8[1705]=0x04; view8[1706]=0x13; view8[1707]=0x1e; view8[1708]=0x3d; view8[1709]=0x30;
+view8[1710]=0x27; view8[1711]=0x2a; view8[1712]=0xb1; view8[1713]=0xbc; view8[1714]=0xab; view8[1715]=0xa6;
+view8[1716]=0x85; view8[1717]=0x88; view8[1718]=0x9f; view8[1719]=0x92; view8[1720]=0xd9; view8[1721]=0xd4;
+view8[1722]=0xc3; view8[1723]=0xce; view8[1724]=0xed; view8[1725]=0xe0; view8[1726]=0xf7; view8[1727]=0xfa;
+view8[1728]=0xb7; view8[1729]=0xba; view8[1730]=0xad; view8[1731]=0xa0; view8[1732]=0x83; view8[1733]=0x8e;
+view8[1734]=0x99; view8[1735]=0x94; view8[1736]=0xdf; view8[1737]=0xd2; view8[1738]=0xc5; view8[1739]=0xc8;
+view8[1740]=0xeb; view8[1741]=0xe6; view8[1742]=0xf1; view8[1743]=0xfc; view8[1744]=0x67; view8[1745]=0x6a;
+view8[1746]=0x7d; view8[1747]=0x70; view8[1748]=0x53; view8[1749]=0x5e; view8[1750]=0x49; view8[1751]=0x44;
+view8[1752]=0x0f; view8[1753]=0x02; view8[1754]=0x15; view8[1755]=0x18; view8[1756]=0x3b; view8[1757]=0x36;
+view8[1758]=0x21; view8[1759]=0x2c; view8[1760]=0x0c; view8[1761]=0x01; view8[1762]=0x16; view8[1763]=0x1b;
+view8[1764]=0x38; view8[1765]=0x35; view8[1766]=0x22; view8[1767]=0x2f; view8[1768]=0x64; view8[1769]=0x69;
+view8[1770]=0x7e; view8[1771]=0x73; view8[1772]=0x50; view8[1773]=0x5d; view8[1774]=0x4a; view8[1775]=0x47;
+view8[1776]=0xdc; view8[1777]=0xd1; view8[1778]=0xc6; view8[1779]=0xcb; view8[1780]=0xe8; view8[1781]=0xe5;
+view8[1782]=0xf2; view8[1783]=0xff; view8[1784]=0xb4; view8[1785]=0xb9; view8[1786]=0xae; view8[1787]=0xa3;
+view8[1788]=0x80; view8[1789]=0x8d; view8[1790]=0x9a; view8[1791]=0x97;
 // Load the XtimeE lookup table
-view8[2048]=0x00; view8[2049]=0x0e; view8[2050]=0x1c; view8[2051]=0x12; view8[2052]=0x38; view8[2053]=0x36;
-view8[2054]=0x24; view8[2055]=0x2a; view8[2056]=0x70; view8[2057]=0x7e; view8[2058]=0x6c; view8[2059]=0x62;
-view8[2060]=0x48; view8[2061]=0x46; view8[2062]=0x54; view8[2063]=0x5a; view8[2064]=0xe0; view8[2065]=0xee;
-view8[2066]=0xfc; view8[2067]=0xf2; view8[2068]=0xd8; view8[2069]=0xd6; view8[2070]=0xc4; view8[2071]=0xca;
-view8[2072]=0x90; view8[2073]=0x9e; view8[2074]=0x8c; view8[2075]=0x82; view8[2076]=0xa8; view8[2077]=0xa6;
-view8[2078]=0xb4; view8[2079]=0xba; view8[2080]=0xdb; view8[2081]=0xd5; view8[2082]=0xc7; view8[2083]=0xc9;
-view8[2084]=0xe3; view8[2085]=0xed; view8[2086]=0xff; view8[2087]=0xf1; view8[2088]=0xab; view8[2089]=0xa5;
-view8[2090]=0xb7; view8[2091]=0xb9; view8[2092]=0x93; view8[2093]=0x9d; view8[2094]=0x8f; view8[2095]=0x81;
-view8[2096]=0x3b; view8[2097]=0x35; view8[2098]=0x27; view8[2099]=0x29; view8[2100]=0x03; view8[2101]=0x0d;
-view8[2102]=0x1f; view8[2103]=0x11; view8[2104]=0x4b; view8[2105]=0x45; view8[2106]=0x57; view8[2107]=0x59;
-view8[2108]=0x73; view8[2109]=0x7d; view8[2110]=0x6f; view8[2111]=0x61; view8[2112]=0xad; view8[2113]=0xa3;
-view8[2114]=0xb1; view8[2115]=0xbf; view8[2116]=0x95; view8[2117]=0x9b; view8[2118]=0x89; view8[2119]=0x87;
-view8[2120]=0xdd; view8[2121]=0xd3; view8[2122]=0xc1; view8[2123]=0xcf; view8[2124]=0xe5; view8[2125]=0xeb;
-view8[2126]=0xf9; view8[2127]=0xf7; view8[2128]=0x4d; view8[2129]=0x43; view8[2130]=0x51; view8[2131]=0x5f;
-view8[2132]=0x75; view8[2133]=0x7b; view8[2134]=0x69; view8[2135]=0x67; view8[2136]=0x3d; view8[2137]=0x33;
-view8[2138]=0x21; view8[2139]=0x2f; view8[2140]=0x05; view8[2141]=0x0b; view8[2142]=0x19; view8[2143]=0x17;
-view8[2144]=0x76; view8[2145]=0x78; view8[2146]=0x6a; view8[2147]=0x64; view8[2148]=0x4e; view8[2149]=0x40;
-view8[2150]=0x52; view8[2151]=0x5c; view8[2152]=0x06; view8[2153]=0x08; view8[2154]=0x1a; view8[2155]=0x14;
-view8[2156]=0x3e; view8[2157]=0x30; view8[2158]=0x22; view8[2159]=0x2c; view8[2160]=0x96; view8[2161]=0x98;
-view8[2162]=0x8a; view8[2163]=0x84; view8[2164]=0xae; view8[2165]=0xa0; view8[2166]=0xb2; view8[2167]=0xbc;
-view8[2168]=0xe6; view8[2169]=0xe8; view8[2170]=0xfa; view8[2171]=0xf4; view8[2172]=0xde; view8[2173]=0xd0;
-view8[2174]=0xc2; view8[2175]=0xcc; view8[2176]=0x41; view8[2177]=0x4f; view8[2178]=0x5d; view8[2179]=0x53;
-view8[2180]=0x79; view8[2181]=0x77; view8[2182]=0x65; view8[2183]=0x6b; view8[2184]=0x31; view8[2185]=0x3f;
-view8[2186]=0x2d; view8[2187]=0x23; view8[2188]=0x09; view8[2189]=0x07; view8[2190]=0x15; view8[2191]=0x1b;
-view8[2192]=0xa1; view8[2193]=0xaf; view8[2194]=0xbd; view8[2195]=0xb3; view8[2196]=0x99; view8[2197]=0x97;
-view8[2198]=0x85; view8[2199]=0x8b; view8[2200]=0xd1; view8[2201]=0xdf; view8[2202]=0xcd; view8[2203]=0xc3;
-view8[2204]=0xe9; view8[2205]=0xe7; view8[2206]=0xf5; view8[2207]=0xfb; view8[2208]=0x9a; view8[2209]=0x94;
-view8[2210]=0x86; view8[2211]=0x88; view8[2212]=0xa2; view8[2213]=0xac; view8[2214]=0xbe; view8[2215]=0xb0;
-view8[2216]=0xea; view8[2217]=0xe4; view8[2218]=0xf6; view8[2219]=0xf8; view8[2220]=0xd2; view8[2221]=0xdc;
-view8[2222]=0xce; view8[2223]=0xc0; view8[2224]=0x7a; view8[2225]=0x74; view8[2226]=0x66; view8[2227]=0x68;
-view8[2228]=0x42; view8[2229]=0x4c; view8[2230]=0x5e; view8[2231]=0x50; view8[2232]=0x0a; view8[2233]=0x04;
-view8[2234]=0x16; view8[2235]=0x18; view8[2236]=0x32; view8[2237]=0x3c; view8[2238]=0x2e; view8[2239]=0x20;
-view8[2240]=0xec; view8[2241]=0xe2; view8[2242]=0xf0; view8[2243]=0xfe; view8[2244]=0xd4; view8[2245]=0xda;
-view8[2246]=0xc8; view8[2247]=0xc6; view8[2248]=0x9c; view8[2249]=0x92; view8[2250]=0x80; view8[2251]=0x8e;
-view8[2252]=0xa4; view8[2253]=0xaa; view8[2254]=0xb8; view8[2255]=0xb6; view8[2256]=0x0c; view8[2257]=0x02;
-view8[2258]=0x10; view8[2259]=0x1e; view8[2260]=0x34; view8[2261]=0x3a; view8[2262]=0x28; view8[2263]=0x26;
-view8[2264]=0x7c; view8[2265]=0x72; view8[2266]=0x60; view8[2267]=0x6e; view8[2268]=0x44; view8[2269]=0x4a;
-view8[2270]=0x58; view8[2271]=0x56; view8[2272]=0x37; view8[2273]=0x39; view8[2274]=0x2b; view8[2275]=0x25;
-view8[2276]=0x0f; view8[2277]=0x01; view8[2278]=0x13; view8[2279]=0x1d; view8[2280]=0x47; view8[2281]=0x49;
-view8[2282]=0x5b; view8[2283]=0x55; view8[2284]=0x7f; view8[2285]=0x71; view8[2286]=0x63; view8[2287]=0x6d;
-view8[2288]=0xd7; view8[2289]=0xd9; view8[2290]=0xcb; view8[2291]=0xc5; view8[2292]=0xef; view8[2293]=0xe1;
-view8[2294]=0xf3; view8[2295]=0xfd; view8[2296]=0xa7; view8[2297]=0xa9; view8[2298]=0xbb; view8[2299]=0xb5;
-view8[2300]=0x9f; view8[2301]=0x91; view8[2302]=0x83; view8[2303]=0x8d;
+view8[1792]=0x00; view8[1793]=0x0e; view8[1794]=0x1c; view8[1795]=0x12; view8[1796]=0x38; view8[1797]=0x36;
+view8[1798]=0x24; view8[1799]=0x2a; view8[1800]=0x70; view8[1801]=0x7e; view8[1802]=0x6c; view8[1803]=0x62;
+view8[1804]=0x48; view8[1805]=0x46; view8[1806]=0x54; view8[1807]=0x5a; view8[1808]=0xe0; view8[1809]=0xee;
+view8[1810]=0xfc; view8[1811]=0xf2; view8[1812]=0xd8; view8[1813]=0xd6; view8[1814]=0xc4; view8[1815]=0xca;
+view8[1816]=0x90; view8[1817]=0x9e; view8[1818]=0x8c; view8[1819]=0x82; view8[1820]=0xa8; view8[1821]=0xa6;
+view8[1822]=0xb4; view8[1823]=0xba; view8[1824]=0xdb; view8[1825]=0xd5; view8[1826]=0xc7; view8[1827]=0xc9;
+view8[1828]=0xe3; view8[1829]=0xed; view8[1830]=0xff; view8[1831]=0xf1; view8[1832]=0xab; view8[1833]=0xa5;
+view8[1834]=0xb7; view8[1835]=0xb9; view8[1836]=0x93; view8[1837]=0x9d; view8[1838]=0x8f; view8[1839]=0x81;
+view8[1840]=0x3b; view8[1841]=0x35; view8[1842]=0x27; view8[1843]=0x29; view8[1844]=0x03; view8[1845]=0x0d;
+view8[1846]=0x1f; view8[1847]=0x11; view8[1848]=0x4b; view8[1849]=0x45; view8[1850]=0x57; view8[1851]=0x59;
+view8[1852]=0x73; view8[1853]=0x7d; view8[1854]=0x6f; view8[1855]=0x61; view8[1856]=0xad; view8[1857]=0xa3;
+view8[1858]=0xb1; view8[1859]=0xbf; view8[1860]=0x95; view8[1861]=0x9b; view8[1862]=0x89; view8[1863]=0x87;
+view8[1864]=0xdd; view8[1865]=0xd3; view8[1866]=0xc1; view8[1867]=0xcf; view8[1868]=0xe5; view8[1869]=0xeb;
+view8[1870]=0xf9; view8[1871]=0xf7; view8[1872]=0x4d; view8[1873]=0x43; view8[1874]=0x51; view8[1875]=0x5f;
+view8[1876]=0x75; view8[1877]=0x7b; view8[1878]=0x69; view8[1879]=0x67; view8[1880]=0x3d; view8[1881]=0x33;
+view8[1882]=0x21; view8[1883]=0x2f; view8[1884]=0x05; view8[1885]=0x0b; view8[1886]=0x19; view8[1887]=0x17;
+view8[1888]=0x76; view8[1889]=0x78; view8[1890]=0x6a; view8[1891]=0x64; view8[1892]=0x4e; view8[1893]=0x40;
+view8[1894]=0x52; view8[1895]=0x5c; view8[1896]=0x06; view8[1897]=0x08; view8[1898]=0x1a; view8[1899]=0x14;
+view8[1900]=0x3e; view8[1901]=0x30; view8[1902]=0x22; view8[1903]=0x2c; view8[1904]=0x96; view8[1905]=0x98;
+view8[1906]=0x8a; view8[1907]=0x84; view8[1908]=0xae; view8[1909]=0xa0; view8[1910]=0xb2; view8[1911]=0xbc;
+view8[1912]=0xe6; view8[1913]=0xe8; view8[1914]=0xfa; view8[1915]=0xf4; view8[1916]=0xde; view8[1917]=0xd0;
+view8[1918]=0xc2; view8[1919]=0xcc; view8[1920]=0x41; view8[1921]=0x4f; view8[1922]=0x5d; view8[1923]=0x53;
+view8[1924]=0x79; view8[1925]=0x77; view8[1926]=0x65; view8[1927]=0x6b; view8[1928]=0x31; view8[1929]=0x3f;
+view8[1930]=0x2d; view8[1931]=0x23; view8[1932]=0x09; view8[1933]=0x07; view8[1934]=0x15; view8[1935]=0x1b;
+view8[1936]=0xa1; view8[1937]=0xaf; view8[1938]=0xbd; view8[1939]=0xb3; view8[1940]=0x99; view8[1941]=0x97;
+view8[1942]=0x85; view8[1943]=0x8b; view8[1944]=0xd1; view8[1945]=0xdf; view8[1946]=0xcd; view8[1947]=0xc3;
+view8[1948]=0xe9; view8[1949]=0xe7; view8[1950]=0xf5; view8[1951]=0xfb; view8[1952]=0x9a; view8[1953]=0x94;
+view8[1954]=0x86; view8[1955]=0x88; view8[1956]=0xa2; view8[1957]=0xac; view8[1958]=0xbe; view8[1959]=0xb0;
+view8[1960]=0xea; view8[1961]=0xe4; view8[1962]=0xf6; view8[1963]=0xf8; view8[1964]=0xd2; view8[1965]=0xdc;
+view8[1966]=0xce; view8[1967]=0xc0; view8[1968]=0x7a; view8[1969]=0x74; view8[1970]=0x66; view8[1971]=0x68;
+view8[1972]=0x42; view8[1973]=0x4c; view8[1974]=0x5e; view8[1975]=0x50; view8[1976]=0x0a; view8[1977]=0x04;
+view8[1978]=0x16; view8[1979]=0x18; view8[1980]=0x32; view8[1981]=0x3c; view8[1982]=0x2e; view8[1983]=0x20;
+view8[1984]=0xec; view8[1985]=0xe2; view8[1986]=0xf0; view8[1987]=0xfe; view8[1988]=0xd4; view8[1989]=0xda;
+view8[1990]=0xc8; view8[1991]=0xc6; view8[1992]=0x9c; view8[1993]=0x92; view8[1994]=0x80; view8[1995]=0x8e;
+view8[1996]=0xa4; view8[1997]=0xaa; view8[1998]=0xb8; view8[1999]=0xb6; view8[2000]=0x0c; view8[2001]=0x02;
+view8[2002]=0x10; view8[2003]=0x1e; view8[2004]=0x34; view8[2005]=0x3a; view8[2006]=0x28; view8[2007]=0x26;
+view8[2008]=0x7c; view8[2009]=0x72; view8[2010]=0x60; view8[2011]=0x6e; view8[2012]=0x44; view8[2013]=0x4a;
+view8[2014]=0x58; view8[2015]=0x56; view8[2016]=0x37; view8[2017]=0x39; view8[2018]=0x2b; view8[2019]=0x25;
+view8[2020]=0x0f; view8[2021]=0x01; view8[2022]=0x13; view8[2023]=0x1d; view8[2024]=0x47; view8[2025]=0x49;
+view8[2026]=0x5b; view8[2027]=0x55; view8[2028]=0x7f; view8[2029]=0x71; view8[2030]=0x63; view8[2031]=0x6d;
+view8[2032]=0xd7; view8[2033]=0xd9; view8[2034]=0xcb; view8[2035]=0xc5; view8[2036]=0xef; view8[2037]=0xe1;
+view8[2038]=0xf3; view8[2039]=0xfd; view8[2040]=0xa7; view8[2041]=0xa9; view8[2042]=0xbb; view8[2043]=0xb5;
+view8[2044]=0x9f; view8[2045]=0x91; view8[2046]=0x83; view8[2047]=0x8d;
 // Load the rcon lookup table
-view8[2304]=0x00; view8[2305]=0x01; view8[2306]=0x02; view8[2307]=0x04; view8[2308]=0x08; view8[2309]=0x10;
-view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[2314]=0x36;
+view8[2048]=0x00; view8[2049]=0x01; view8[2050]=0x02; view8[2051]=0x04; view8[2052]=0x08; view8[2053]=0x10;
+view8[2054]=0x20; view8[2055]=0x40; view8[2056]=0x80; view8[2057]=0x1B; view8[2058]=0x36;
 		}
 
 		/**
@@ -717,7 +673,7 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 				view8[(Xtime9 + (view8[(state + 14)|0]|0))|0] ^
 				view8[(XtimeE + (view8[(state + 15)|0]|0))|0];
 
-			for( ; (i|0) < (4 * nb) ; i = (i + 1)|0 )
+			for( ; (i|0) < 16 ; i = (i + 1)|0 )
 				view8[(state + i)|0] = view8[(InvSbox + (view8[(temp + i)|0]|0))|0];
 		}
 
@@ -746,39 +702,51 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 			rk = rk|0;
 			key = key|0;
 			keysize = keysize|0;
-			var i = 0, tmp0 = 0, tmp1 = 0, tmp2 = 0, tmp3 = 0, tmp4 = 0;
-			keysize = 128;
+			var i = 0, nRounds = 0, keyColumns = 0, tmp0 = 0, tmp1 = 0, tmp2 = 0, tmp3 = 0, tmp4 = 0;
+			switch(keysize|0) {
+				case 256:
+					nRounds = 14;
+					keyColumns = 8;
+					break;
+				case 192:
+					nRounds = 12;
+					keyColumns = 6;
+					break;
+				default: // 128
+					nRounds = 10;
+					keyColumns = 4;
+			}
 
 			// start off the rk with the key
-			copy(rk, key, (nk * 4));
+			copy(rk, key, (keyColumns * 4));
 
-			for(i = nk; (i|0) < (((nr + 1)|0) * 4/*nb*/) ; i = (i + 1)|0) {
+			for(i = keyColumns; (i|0) < (((nRounds + 1)|0) * 4) ; i = (i + 1)|0) {
 				tmp0 = view8[(rk + (4 * i - 4))|0]|0;
 				tmp1 = view8[(rk + (4 * i - 3))|0]|0;
 				tmp2 = view8[(rk + (4 * i - 2))|0]|0;
 				tmp3 = view8[(rk + (4 * i - 1))|0]|0;
 
-				if((((i|0) % (nk|0))|0) == 0) {
+				if((((i|0) % (keyColumns|0))|0) == 0) {
 					tmp4 = tmp3;
 					tmp3 = view8[(Sbox + tmp0)|0]|0;
 					tmp0 = view8[(Sbox + tmp1)|0] ^
-						view8[(rcon + (((i|0) / (nk|0))|0))|0];
+						   view8[(rcon + (((i|0) / (keyColumns|0))|0))|0];
 					tmp1 = view8[(Sbox + tmp2)|0]|0;
 					tmp2 = view8[(Sbox + tmp4)|0]|0;
-				} else if((((nk|0) > 6) & ((((i|0) % (nk|0))|0) == 4)) != 0) {
+				} else if((((keyColumns|0) > 6) & ((((i|0) % (keyColumns|0))|0) == 4)) != 0) {
 					tmp0 = view8[(Sbox + tmp0)|0]|0;
 					tmp1 = view8[(Sbox + tmp1)|0]|0;
 					tmp2 = view8[(Sbox + tmp2)|0]|0;
 					tmp3 = view8[(Sbox + tmp3)|0]|0;
 				}
 
-				view8[(rk + (4 * i + 0))|0] = view8[(rk + (4 * i - 4 * nk + 0))|0] ^ tmp0;
-				view8[(rk + (4 * i + 1))|0] = view8[(rk + (4 * i - 4 * nk + 1))|0] ^ tmp1;
-				view8[(rk + (4 * i + 2))|0] = view8[(rk + (4 * i - 4 * nk + 2))|0] ^ tmp2;
-				view8[(rk + (4 * i + 3))|0] = view8[(rk + (4 * i - 4 * nk + 3))|0] ^ tmp3;
+				view8[(rk + (4 * i + 0))|0] = view8[(rk + (4 * i - 4 * keyColumns + 0))|0] ^ tmp0;
+				view8[(rk + (4 * i + 1))|0] = view8[(rk + (4 * i - 4 * keyColumns + 1))|0] ^ tmp1;
+				view8[(rk + (4 * i + 2))|0] = view8[(rk + (4 * i - 4 * keyColumns + 2))|0] ^ tmp2;
+				view8[(rk + (4 * i + 3))|0] = view8[(rk + (4 * i - 4 * keyColumns + 3))|0] ^ tmp3;
 			}
 
-			return 10;
+			return (nRounds|0);
 		}
 
 		/**
@@ -794,20 +762,20 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 			cipher = cipher|0;
 			var round = 0;
 
-			copy(state, plain, nb * 4);
+			copy(state, plain, 16);
 
 			addRoundKey(state, rk);
 
-			for(round = 1 ; (round|0) < ((nr + 1)|0) ; round = (round + 1)|0) {
-				if((round|0) < (nr|0)) {
+			for(round = 1 ; (round|0) < ((nRounds + 1)|0) ; round = (round + 1)|0) {
+				if((round|0) < (nRounds|0)) {
 					mixSubColumn(state);
 				} else {
 					shiftRows(state);
 				}
-				addRoundKey(state, (rk + round * 4/*nb*/ * 4)|0);
+				addRoundKey(state, (rk + round * 16)|0);
 			}
 
-			copy(cipher, state, nb * 4);
+			copy(cipher, state, 16);
 		}
 
 		/**
@@ -823,18 +791,18 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 			plain = plain|0;
 			var round = 0;
 
-			copy(state, cipher, nb * 4);
+			copy(state, cipher, 16);
 
-			addRoundKey(state, (rk + nr * 4/*nb*/ * 4)|0);
+			addRoundKey(state, (rk + nRounds * 16)|0);
 			invShiftRows(state);
 
-			for(round = (nr - 1)|0 ; (round|0) >= 0 ; round = (round - 1)|0) {
-				addRoundKey (state, (rk + (round * 4/*nb*/ * 4))|0);
+			for(round = (nRounds - 1)|0 ; (round|0) >= 0 ; round = (round - 1)|0) {
+				addRoundKey (state, (rk + (round * 16))|0);
 				if((round|0) > 0)
 					invMixSubColumns(state);
 			}
 
-			copy(plain, state, nb * 4);
+			copy(plain, state, 16);
 		}
 
 		return {
@@ -864,19 +832,24 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 	/**
 	 * @param {String} password
 	 * @param {String} data
+	 * @param {int} keysize
 	 * @returns {ArrayBuffer}
 	 */
-	function encrypt(password, data) {
+	function encrypt(password, data, keysize) {
+		keysize = keysize|0;
 		var ciphertext, ciphertextLen, nRounds;
 		var i, c, d, p;
-		var plainView = new Uint16Array(heap, plainOffset, 8);
-		var cipherView = new Uint8Array(heap, cipherOffset, 16);
+
+		// Validate keysize
+		if(keysize !== 128 && keysize !== 192 && keysize !== 256) {
+			keysize = 128;
+		}
 
 		// TODO Create a real key from the password.
-		for(i = 0 ; i < 32 ; i++) {
-			heap8[keyOffset + i] = 0;//65 + i;
+		for(i = 0 ; i < (keysize / 8) ; i++) {
+			heap8[keyOffset + i] = 0;
 		}
-		nRounds = asm.expandKey(rkOffset, keyOffset);
+		nRounds = asm.expandKey(rkOffset, keyOffset, keysize);
 
 		// Create the ciphertext buffer
 		ciphertextLen = data.length * 2 + 1; // + 1 for the terminating 0x80
@@ -917,20 +890,25 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 	/**
 	 * @param {String} password
 	 * @param {ArrayBuffer} data
+	 * @param {int} keysize
 	 * @returns {string}
 	 */
-	function decrypt(password, data) {
+	function decrypt(password, data, keysize) {
+		keysize = keysize|0;
 		var data8 = new Uint8Array(data);
 		var plaintext, nRounds;
 		var i, c, d;
-		var plainView = new Uint16Array(heap, plainOffset, 8);
-		var cipherView = new Uint8Array(heap, cipherOffset, 16);
+
+		// Validate keysize
+		if(keysize !== 128 && keysize !== 192 && keysize !== 256) {
+			keysize = 128;
+		}
 
 		// TODO Create a real key from the password.
-		for(i = 0 ; i < 32 ; i++) {
+		for(i = 0 ; i < (keysize / 8) ; i++) {
 			heap8[keyOffset + i] = 0;//65 + i;
 		}
-		nRounds = asm.expandKey(rkOffset, keyOffset);
+		nRounds = asm.expandKey(rkOffset, keyOffset, keysize);
 
 		// Create the plaintext buffer
 		plaintext = "";
@@ -943,14 +921,18 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 			}
 
 			asm.decrypt(rkOffset, nRounds, cipherOffset, plainOffset);
+
+			// Find the 0x80 byte and truncate
+			// start at the end and search backwards
 			i = plainOffset + 16;
 			if(d === data8.length) {
 				do {
 					i--;
 				} while(heap8[i] !== 0x80);
 			}
-			for(c = plainOffset ; c < i ; c++) {
-				plaintext += String.fromCharCode(heap8[c++]);
+			// Convert text up to the 0x80 byte
+			for(c = plainOffset ; c < i ; c += 2) {
+				plaintext += String.fromCharCode(heap8[c]);
 			}
 			c = 0;
 		}
@@ -958,18 +940,20 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 		return plaintext;
 	}
 
-	function testEncrypt() {
-		var i, j, nRounds, hex;
+	function testEncrypt(keysize) {
+		keysize = keysize || 128;
+		var i, j, nRounds;
 		var keyView = new Uint8Array(heap, keyOffset, 32);
 		var plainView = new Uint8Array(heap, plainOffset, 16);
 
 		// set the key
-		for(i = 0 ; i < 32 ; i++) {
+		for(i = 0 ; i < (keysize / 8) ; i++) {
 			keyView[i] = i;
 		}
+		console.log("KEY=" + Hex.toHex(heap, keyOffset, (keysize / 8)));
 
-		nRounds = asm.expandKey(rkOffset, keyOffset);
-		for(i = 0 ; i < (16 * 11) ; i += 16) {
+		nRounds = asm.expandKey(rkOffset, keyOffset, keysize);
+		for(i = 0 ; i < (16 * (nRounds + 1)) ; i += 16) {
 			console.log("RK=" + Hex.toHex(heap, rkOffset + i, 16));
 		}
 
@@ -983,30 +967,29 @@ view8[2310]=0x20; view8[2311]=0x40; view8[2312]=0x80; view8[2313]=0x1B; view8[23
 		console.log("CT=" + Hex.toHex(heap, cipherOffset, 16));
 	}
 
-	function testDecrypt() {
+	function testDecrypt(keysize) {
+		keysize = keysize || 128;
 		var i, j, nRounds;
 		var keyView = new Uint8Array(heap, keyOffset, 32);
-		var cipherView = new Uint8Array(heap, cipherOffset, 16);
+		var plainView = new Uint8Array(heap, plainOffset, 16);
 
 		// set the key
-		for(i = 0 ; i < 32 ; i++) {
+		for(i = 0 ; i < (keysize / 8) ; i++) {
 			keyView[i] = i;
 		}
+		console.log("KEY=" + Hex.toHex(heap, keyOffset, (keysize / 8)));
 
-		nRounds = asm.expandKey(rkOffset, keyOffset);
-		for(i = 0 ; i < (16 * 11) ; i += 16) {
+		nRounds = asm.expandKey(rkOffset, keyOffset, keysize);
+		for(i = 0 ; i < (16 * (nRounds + 1)) ; i += 16) {
 			console.log("RK=" + Hex.toHex(heap, rkOffset + i, 16));
 		}
 
-		// set ciphertext
-		// 69 C4 E0 D8 6A 7B 04 30 D8 CD B7 80 70 B4 C5 5A
-		i = 0;
-		cipherView[i++] = 0x69; cipherView[i++] = 0xc4; cipherView[i++] = 0xe0;
-		cipherView[i++] = 0xd8; cipherView[i++] = 0x6a; cipherView[i++] = 0x7b;
-		cipherView[i++] = 0x04; cipherView[i++] = 0x30; cipherView[i++] = 0xd8;
-		cipherView[i++] = 0xcd; cipherView[i++] = 0xb7; cipherView[i++] = 0x80;
-		cipherView[i++] = 0x70; cipherView[i++] = 0xb4; cipherView[i++] = 0xc5;
-		cipherView[i++] = 0x5a;
+		// set plaintext
+		for(i = 0 ; i < 16 ; i++) {
+			plainView[i] = 16 * i + i;
+		}
+		// encrypt for ciphertext
+		asm.encrypt(rkOffset, nRounds, plainOffset, cipherOffset);
 		console.log("CT=" + Hex.toHex(heap, cipherOffset, 16));
 
 		asm.decrypt(rkOffset, nRounds, cipherOffset, plainOffset);
