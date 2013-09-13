@@ -16,7 +16,6 @@ var Aes = function() {
 	function aesAsm(stdlib, foreign, heap) {
 		"use asm";
 
-		var logHex = foreign.logHex;
 		var view8  = new stdlib.Uint8Array(heap);
 		var Sbox = 0;
 		var InvSbox = 256;
@@ -27,13 +26,8 @@ var Aes = function() {
 		var XtimeD = 1536;
 		var XtimeE = 1792;
 		var rcon = 2048;
-		var temp = 2059; // rcon + 11
-		var state = 2075; // temp + 16
-
-		var stateSize = 16; // size of the state array
-		var nb =  4; // number of bytes in the state and expanded key
-		var nk =  4; // number of columns in a key
-		var nr = 10; // number of rounds in encryption
+		var temp = 2060; // rcon + 11 + 1
+		var state = 2076; // temp + 16
 
 		/**
 		 * Initialize lookup tables in the heap. This must be called before anything else.
@@ -685,7 +679,7 @@ view8[2054]=0x20; view8[2055]=0x40; view8[2056]=0x80; view8[2057]=0x1B; view8[20
 			state = state|0;
 			key = key|0;
 			var i = 0;
-			for(i = 0 ; (i|0) < (nb * 4) ; i = (i + 1)|0) {
+			for(i = 0 ; (i|0) < 16 ; i = (i + 1)|0) {
 				view8[(state + i)|0] = view8[(state + i)|0] ^ view8[(key + i)|0];
 			}
 		}
@@ -813,21 +807,17 @@ view8[2054]=0x20; view8[2055]=0x40; view8[2056]=0x80; view8[2057]=0x1B; view8[20
 		}
 	}
 
-	var heapSize = 16384; // 2^14
-	var rkOffset = 10280; // 240b
-	var keyOffset = 10520; // 32b
-	var plainOffset = 10552; // 16b
-	var cipherOffset = 10568; // 16b
+	var heapSize = 4096; // 2^12
+	var rkOffset = 2092; // 240b
+	var keyOffset = 2332; // 32b
+	var plainOffset = 2364; // 16b
+	var cipherOffset = 2380; // 16b
 
 	var heap   = new ArrayBuffer(heapSize);
 	var heap8  = new Uint8Array(heap);
 	var heap16 = new Uint16Array(heap);
-	var asm = aesAsm(window, {"logHex": logHex}, heap);
+	var asm = aesAsm(window, null, heap);
 	asm.init();
-
-	function logHex(pointer, len) {
-		console.log(Hex.toHex(heap, pointer, len));
-	}
 
 	/**
 	 * @param {String} password
