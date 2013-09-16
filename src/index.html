@@ -81,14 +81,16 @@
 			hash_form.onsubmit = function(event) {
 				event.preventDefault();
 
-				var hashB = hashString(hash_plaintext.value);
-				hash_output.innerHTML = hashB;
+				var hashB = Sha256.hashString(hash_plaintext.value);
+				var hash32 = new Uint32Array(hashB);
+				var hash = "";
+				for(var i = 0 ; i < 8 ; i++) {
+					hash += toHex(hash32[i]);
+					/*hash += toHex((hashB[i] >>> 4) & 0xf;
+					hash += (hashB[i]      ) & 0xf;*/
+				}
+				hash_output.innerHTML = hash;
 			};
-			var i = 0xffffffff;
-			hash_plain_output.innerHTML = "i = " + i;
-			++i;
-			hash_plain_output.innerHTML += " ; ++i = " + i;
-			hash_plain_output.innerHTML += " ; 0x100000000 = " + 0x100000000;
 
 		});
 	</script>
