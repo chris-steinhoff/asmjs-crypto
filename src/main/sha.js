@@ -182,10 +182,11 @@ heap32[240>>2]=0x90befffa; heap32[244>>2]=0xa4506ceb; heap32[248>>2]=0xbef9a3f7;
 			// Copy the chunk to the first 16 words of the schedule
 			for( ; (i|0) < 64 ; i = (i + 4)|0) {
 				heap32[(context + W + i) >> 2] =
-					(heap8[chunk + i + 0] << 24) |
-					(heap8[chunk + i + 1] << 16) |
-					(heap8[chunk + i + 2] <<  8) |
-					(heap8[chunk + i + 3]      )
+					// Convert to big-endian
+					(heap8[(chunk + i + 0)|0] << 24) |
+					(heap8[(chunk + i + 1)|0] << 16) |
+					(heap8[(chunk + i + 2)|0] <<  8) |
+					(heap8[(chunk + i + 3)|0]      )
 				;
 //				heap32[(context + W + i) >> 2] = heap32[(chunk + i) >> 2];
 			}
@@ -218,7 +219,7 @@ heap32[240>>2]=0x90befffa; heap32[244>>2]=0xa4506ceb; heap32[248>>2]=0xbef9a3f7;
 					(heap32[(K + i) >> 2]|0) +
 					(heap32[(context + W + i) >> 2]|0)
 				)|0;
-				T2 = Σ0(a)|0 + (Maj(a, b, c)|0);
+				T2 = ((Σ0(a)|0) + (Maj(a, b, c)|0))|0;
 
 				// Rotate
 				h = g;
@@ -293,7 +294,16 @@ heap32[240>>2]=0x90befffa; heap32[244>>2]=0xa4506ceb; heap32[248>>2]=0xbef9a3f7;
 		// Append the length
 		heap32[(chunk + i) >> 2] = 0x00000000;
 		i += 4;
-		heap32[(chunk + i) >> 2] = (len * 8) & 0xffffffff;
+		// Length in bits
+		len *= 8;
+		// Convert to big-endian
+		len =
+			((len & 0x000000ff) <<  24) |
+			((len & 0x0000ff00) <<   8) |
+			((len & 0x00ff0000) >>>  8) |
+			((len & 0xff000000) >>> 24)
+		;
+		heap32[(chunk + i) >> 2] = len & 0xffffffff;
 
 		asm.hash(context, chunk);
 
@@ -336,208 +346,3 @@ function toHex(word) {
 	return hex;
 }
 toHex.hexChars = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
-
-function finish(context) {
-	//context = context|0;
-	var hex = "";
-	hex += toHex(context.H0);
-	hex += toHex(context.H1);
-	hex += toHex(context.H2);
-	hex += toHex(context.H3);
-	hex += toHex(context.H4);
-	hex += toHex(context.H5);
-	hex += toHex(context.H6);
-	hex += toHex(context.H7);
-	/*var i, hex = "";
-	for(i = 0 ; i < 8 ; i++) {
-		hex += toHex(heap32[(context >> 2) + i]);
-	}*/
-	return hex;
-}
-
-/**
- * @param {HashContext} context
- * @param {Array} chunk
- */
-function hash(context, chunk) {
-	/*context = context|0;
-	chunk = chunk|0;*/
-	var i, s0, s1, ch, maj, temp1, temp2, a, b, c, d, e, f, g, h;
-	var W = new Array(64); // message schedule
-	var T1, T2;
-
-	// Copy the first 16 words of the chunk into the schedule.
-	for(i = 0 ; i < 16 ; i++) { // i is a byte-pointer
-		W[i] = chunk[i];
-//		heap32[(context + 32 + i) >> 2] = heap32[(chunk + (i<<2)) >>> 2];
-	}
-
-	// Extend the first 16 words into the remaining 48 words of the schedule.
-	for(i = 16 ; i < 64 ; i++) { // i is a byte-pointer
-		W[i] = σ1(W[i-2]) + W[i-7] + σ0(W[i-15]) + W[i-16];
-		/*s0 =
-			(rightRotate(heap32[(context + 32 + i - (15 << 2)) >> 2],  7) ^
-			 rightRotate(heap32[(context + 32 + i - (15 << 2)) >> 2], 18) ^
-			 rightShift (heap32[(context + 32 + i - (15 << 2)) >> 2],  3)) >>> 0;
-
-		s1 =
-			(rightRotate(heap32[(context + 32 + i - ( 2 << 2)) >> 2], 17) ^
-			 rightRotate(heap32[(context + 32 + i - ( 2 << 2)) >> 2], 19) ^
-			 rightShift (heap32[(context + 32 + i - ( 2 << 2)) >> 2], 10)) >>> 0;
-
-		heap32[(context + 32 + i) >> 2] =
-			(heap32[(context + 32 + i - (16 << 2)) >> 2] >>> 0) +
-			(s0 >>> 0) +
-			(heap32[(context + 32 + i - ( 7 << 2)) >> 2] >>> 0) +
-			(s1 >>> 0); // modulo 2^32 ?*/
-	}
-
-	// Initialize working variables to the current hash value.
-	a = context.H0;
-	b = context.H1;
-	c = context.H2;
-	d = context.H3;
-	e = context.H4;
-	f = context.H5;
-	g = context.H6;
-	h = context.H7;
-	/*a = heap32[(context +  0) >> 2];
-	b = heap32[(context +  4) >> 2];
-	c = heap32[(context +  8) >> 2];
-	d = heap32[(context + 12) >> 2];
-	e = heap32[(context + 16) >> 2];
-	f = heap32[(context + 20) >> 2];
-	g = heap32[(context + 24) >> 2];
-	h = heap32[(context + 28) >> 2];*/
-
-	// Compress the chunk
-	for(i = 0 ; i < 64 ; i++) { // i is a word-pointer
-		T1 = h + Σ1(e) + Ch(e, f, g) + k[i] + W[i];
-		T2 = Σ0(a) + Maj(a, b, c);
-		/*s1 = (rightRotate(e,  6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) >>> 0;
-		ch = ((e & f) ^ ((~e) & g)) >>> 0;
-		temp1 =
-			(h + s1 + ch +
-			(k[i] >>> 0) + heap32[(context + 32 + (i << 2)) >> 2]) >>> 0; // modulo 2^32 ?
-		s0 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) >>> 0;
-		maj = ((a & b) ^ (a & c) ^ (b & c)) >>> 0;
-		temp2 = (s0 + maj) >>> 0; // modulo 2^32 ?*/
-
-		// Rotate
-		h = g;
-		g = f;
-		f = e;
-		e = (d + T1)|0;
-		d = c;
-		c = b;
-		b = a;
-		a = (T1 + T2)|0;
-	}
-
-	// Add the compressed chunk to the current hash value.
-	context.H0 = (a + context.H0)|0;
-	context.H1 = (b + context.H1)|0;
-	context.H2 = (c + context.H2)|0;
-	context.H3 = (d + context.H3)|0;
-	context.H4 = (e + context.H4)|0;
-	context.H5 = (f + context.H5)|0;
-	context.H6 = (g + context.H6)|0;
-	context.H7 = (h + context.H7)|0;
-	/*heap32[(context +  0) >> 2] = a + heap32[(context +  0) >> 2];
-	heap32[(context +  4) >> 2] = b + heap32[(context +  4) >> 2];
-	heap32[(context +  8) >> 2] = c + heap32[(context +  8) >> 2];
-	heap32[(context + 12) >> 2] = d + heap32[(context + 12) >> 2];
-	heap32[(context + 16) >> 2] = e + heap32[(context + 16) >> 2];
-	heap32[(context + 20) >> 2] = f + heap32[(context + 20) >> 2];
-	heap32[(context + 24) >> 2] = g + heap32[(context + 24) >> 2];
-	heap32[(context + 28) >> 2] = h + heap32[(context + 28) >> 2];*/
-	/*heap32[(context +  0) >> 2] = (heap32[(context +  0) >> 2] >>> 0) + (a >>> 0);
-	heap32[(context +  4) >> 2] = (heap32[(context +  4) >> 2] >>> 0) + (b >>> 0);
-	heap32[(context +  8) >> 2] = (heap32[(context +  8) >> 2] >>> 0) + (c >>> 0);
-	heap32[(context + 12) >> 2] = (heap32[(context + 12) >> 2] >>> 0) + (d >>> 0);
-	heap32[(context + 16) >> 2] = (heap32[(context + 16) >> 2] >>> 0) + (e >>> 0);
-	heap32[(context + 20) >> 2] = (heap32[(context + 20) >> 2] >>> 0) + (f >>> 0);
-	heap32[(context + 24) >> 2] = (heap32[(context + 24) >> 2] >>> 0) + (g >>> 0);
-	heap32[(context + 28) >> 2] = (heap32[(context + 28) >> 2] >>> 0) + (h >>> 0);*/
-}
-
-function hashString(str) {
-//	var byteLen = str.length * 2 + 9; // 2 bytes per character + 0x80 byte + 8-byte length
-//	var pad = 64 - (byteLen % 64);
-	var context = new HashContext();
-//	var chunk = 300;
-	var chunk = new Array(64);
-	var i, j, s, c;
-
-	//initHash(context);
-
-	// Copy the string into the chunk
-	for(s = 0, c = 0 ; s < str.length ; ) {
-		chunk[c++] = str.charCodeAt(s++) & 0xff; // only ascii for now
-		if((c % 64) > 0) {
-			continue;
-		}
-
-		compressChunk(chunk);
-
-		hash(context, chunk);
-		c = 0;
-	}
-	/*for(s = 0, c = 0 ; s < str.length ; ) {
-		heap8[chunk + c++] = (str.charCodeAt(s++) & 0xff); // only ascii for now
-		if((c % 64) > 0) {
-			continue;
-		}
-
-		hash(context, chunk);
-		c = 0;
-	}*/
-
-	// Convert the chunk pointer to a byte-pointer
-	//b = b << 1;
-
-	// Append the 0x80 byte
-	chunk[c++] = 0x80;
-	//heap8[chunk + c++] = 0x80;
-
-	// Append padding
-	while(((c + 8) % 64) > 0) {
-		if((c % 64) == 0) {
-			compressChunk(chunk);
-			hash(context, chunk);
-			c = 0;
-		}
-		chunk[c++] = 0x00;
-	}
-	/*while(((c + 8) % 64) > 0) { // 64(total) - 8(length) = 56
-		heap8[chunk + c++] = 0x00;
-	}*/
-
-	compressChunk(chunk);
-
-	// Append length
-	chunk[14] = 0x00000000;
-	chunk[15] = (str.length * 8) >>> 0;
-	/*c = (chunk + c) >> 2; // word-pointer
-	heap32[c++] = 0x00;
-	heap32[c] = (str.length * 8) >>> 0; // size in bits*/
-
-	// Hash the padded chunk
-	hash(context, chunk);
-
-	return finish(context);
-}
-
-/**
- * @param {Array} chunk
- */
-function compressChunk(chunk) {
-	var i, j;
-	for(i = 0, j = 0 ; i < 64 ; i += 4, j++) {
-		chunk[j] =
-			(chunk[i + 0] << 24) |
-			(chunk[i + 1] << 16) |
-			(chunk[i + 2] <<  8) |
-			(chunk[i + 3] <<  0);
-	}
-}
