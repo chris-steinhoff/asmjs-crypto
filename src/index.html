@@ -7,6 +7,7 @@
 	<script type="text/javascript" src="common.js"></script>
 	<script type="text/javascript" src="hex.js" defer="defer"></script>
 	<script type="text/javascript" src="aes.js" defer="defer"></script>
+	<script type="text/javascript" src="main/sha.js" defer="defer"></script>
 	<script type="text/javascript">
 
 		/**
@@ -76,6 +77,26 @@
 				aes_plaintext.value = str;
 			};
 
+			var hash_form = document.getElementById("hash_form");
+			var hash_plaintext = document.getElementById("hash_plaintext");
+			var hash_submit = document.getElementById("hash_submit");
+			var hash_output = document.getElementById("hash_output");
+			var hash_plain_output = document.getElementById("hash_plain_output");
+
+			hash_form.onsubmit = function(event) {
+				event.preventDefault();
+
+				var hashB = Sha256.hashString(hash_plaintext.value);
+				var hash32 = new Uint32Array(hashB);
+				var hash = "";
+				for(var i = 0 ; i < 8 ; i++) {
+					hash += toHex(hash32[i]);
+					/*hash += toHex((hashB[i] >>> 4) & 0xf;
+					hash += (hashB[i]      ) & 0xf;*/
+				}
+				hash_output.innerHTML = hash;
+			};
+
 		});
 	</script>
 </head>
@@ -115,6 +136,19 @@
 	<div class="module_result">
 		<span id="aes_output" class="output"></span><br/>
 		<span id="aes_plain_output" class="output"></span>
+	</div>
+</div>
+
+<div class="module">
+	<div class="module_header">Hash</div>
+	<form id="hash_form" class="module_form">
+		<label for="hash_plaintext" class="module_label">Text:</label>
+		<textarea id="hash_plaintext" class="module_text">abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq</textarea><br/>
+		<button id="hash_submit" type="submit" class="module_submit">Submit</button>
+	</form>
+	<div class="module_result">
+		<span id="hash_output" class="output"></span><br/>
+		<span id="hash_plain_output" class="output"></span>
 	</div>
 </div>
 
