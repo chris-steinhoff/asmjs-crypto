@@ -940,21 +940,21 @@ view8[2054]=0x20; view8[2055]=0x40; view8[2056]=0x80; view8[2057]=0x1B; view8[20
 		for(i = 0 ; i < (keysize / 8) ; i++) {
 			keyView[i] = i;
 		}
-		console.log("KEY=" + Hex.toHex(heap, keyOffset, (keysize / 8)));
+		console.log("KEY=" + arrayToHex(heap, keyOffset, (keysize / 8)));
 
 		nRounds = asm.expandKey(rkOffset, keyOffset, keysize);
 		for(i = 0 ; i < (16 * (nRounds + 1)) ; i += 16) {
-			console.log("RK=" + Hex.toHex(heap, rkOffset + i, 16));
+			console.log("RK=" + arrayToHex(heap, rkOffset + i, 16));
 		}
 
 		// set plaintext
 		for(i = 0 ; i < 16 ; i++) {
 			plainView[i] = 16 * i + i;
 		}
-		console.log("PT=" + Hex.toHex(heap, plainOffset, 16));
+		console.log("PT=" + arrayToHex(heap, plainOffset, 16));
 
 		asm.encrypt(rkOffset, nRounds, plainOffset, cipherOffset);
-		console.log("CT=" + Hex.toHex(heap, cipherOffset, 16));
+		console.log("CT=" + arrayToHex(heap, cipherOffset, 16));
 	}
 
 	function testDecrypt(keysize) {
@@ -967,11 +967,11 @@ view8[2054]=0x20; view8[2055]=0x40; view8[2056]=0x80; view8[2057]=0x1B; view8[20
 		for(i = 0 ; i < (keysize / 8) ; i++) {
 			keyView[i] = i;
 		}
-		console.log("KEY=" + Hex.toHex(heap, keyOffset, (keysize / 8)));
+		console.log("KEY=" + arrayToHex(heap, keyOffset, (keysize / 8)));
 
 		nRounds = asm.expandKey(rkOffset, keyOffset, keysize);
 		for(i = 0 ; i < (16 * (nRounds + 1)) ; i += 16) {
-			console.log("RK=" + Hex.toHex(heap, rkOffset + i, 16));
+			console.log("RK=" + arrayToHex(heap, rkOffset + i, 16));
 		}
 
 		// set plaintext
@@ -980,10 +980,10 @@ view8[2054]=0x20; view8[2055]=0x40; view8[2056]=0x80; view8[2057]=0x1B; view8[20
 		}
 		// encrypt for ciphertext
 		asm.encrypt(rkOffset, nRounds, plainOffset, cipherOffset);
-		console.log("CT=" + Hex.toHex(heap, cipherOffset, 16));
+		console.log("CT=" + arrayToHex(heap, cipherOffset, 16));
 
 		asm.decrypt(rkOffset, nRounds, cipherOffset, plainOffset);
-		console.log("PT=" + Hex.toHex(heap, plainOffset, 16));
+		console.log("PT=" + arrayToHex(heap, plainOffset, 16));
 	}
 
 	return {

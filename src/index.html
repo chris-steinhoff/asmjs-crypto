@@ -32,16 +32,20 @@
 				event.preventDefault();
 
 				var buff = CS.stringToArrayBuffer(hex_plaintext.value);
-				console.time("toHex");
-				var hex = Hex.toHex(buff);
-				console.timeEnd("toHex");
+				var hex = arrayToHex(buff);//Hex.toHex(buff);
 				hex_output.innerHTML = hex;
 
-				console.time("fromHex");
-				buff = Hex.fromHex(hex);
-				console.timeEnd("fromHex");
+				buff = arrayFromHex(hex);//Hex.fromHex(hex);
 				hex = CS.arrayBufferToString(buff);
 				hex_plain_output.innerHTML = escapeHtml(hex);
+
+				var i = 0;
+				console.time("normal bench");
+				for(i = 0 ; i < 1000 ; ++i) {
+					hex = arrayToHex(buff);
+					buff = arrayFromHex(hex);
+				}
+				console.timeEnd("normal bench");
 			};
 
 			var aes_form = document.getElementById("aes_form");
@@ -63,13 +67,13 @@
 				console.time("aes");
 				ab = Aes.encrypt(aes_password.value, aes_plaintext.value, aes_keysize.value);
 				console.timeEnd("aes");
-				aes_ciphertext.value = Hex.toHex(ab);
+				aes_ciphertext.value = arrayToHex(ab);
 			};
 			aes_decrypt.onclick = function(event) {
 //				Aes.testDecrypt(128);
 //				Aes.testDecrypt(192);
 //				Aes.testDecrypt(256);
-				var str, ab = Hex.fromHex(aes_ciphertext.value);
+				var str, ab = arrayFromHex(aes_ciphertext.value);
 				event.preventDefault();
 				console.time("aes");
 				str = Aes.decrypt(aes_password.value, ab, aes_keysize.value);
@@ -90,7 +94,7 @@
 				var hash32 = new Uint32Array(hashB);
 				var hash = "";
 				for(var i = 0 ; i < 8 ; i++) {
-					hash += toHex(hash32[i]);
+					hash += wordToHex(hash32[i]);
 					/*hash += toHex((hashB[i] >>> 4) & 0xf;
 					hash += (hashB[i]      ) & 0xf;*/
 				}
