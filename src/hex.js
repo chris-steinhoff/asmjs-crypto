@@ -90,7 +90,7 @@
 			return 0;
 		}
 		var num = 0;
-		for(var i = 0; i < hex.length;) {
+		for(var i = 0; i < hex.length; i++) {
 			num = (num << 4) ^ (revHexChars[hex.charCodeAt(i) & 0xff])
 		}
 		return num;
