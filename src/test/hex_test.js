@@ -6,7 +6,7 @@
 var assert = require("assert");
 
 global["window"] = global;
-require("../hex.js");
+require("../main/hex.js");
 
 var result;
 
