@@ -13,8 +13,12 @@
 	var r = 0;
 
 	// Initialize pool
-	for(var f = 0 ; f < size ; f++) {
-		array[f] = (f & 0xff);
+	if(window.localStorage.getItem("entropy") === null) {
+		for(var f = 0 ; f < size ; f++) {
+			array[f] = (f & 0xff);
+		}
+	} else {
+		loadEntropy();
 	}
 
 	function plusOne(i) {
@@ -36,6 +40,23 @@
 		r = plusOne(r);
 		return array[i];
 	};
+
+	function persistEntropy() {
+		var hex = "";
+		for(var i = 0 ; i < size ; i++) {
+			hex += byteToHex(array[i]);
+		}
+		window.localStorage.setItem("entropy", hex);
+	}
+
+	function loadEntropy() {
+		var hex = window.localStorage.getItem("entropy");
+		for(var i = 0, j = 0 ; (i < size) && ((j + 2) < hex.length) ; i++, j += 2) {
+			array[i] = intFromHex(hex.substring(j, (j + 2)));
+		}
+	}
+
+	setInterval(persistEntropy, 5000);
 
 	window.document.addEventListener("mousemove", function(event) {
 		array.addEntropy(event.screenX, event.screenY);
