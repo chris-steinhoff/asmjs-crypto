@@ -17,29 +17,19 @@
 			return str.replace(/[&]/g, "&amp;").replace(/[<]/g, "&lt;");
 		}
 
-		var entropyPoolSize = 16;
-		var entropy = new EntropyPool(entropyPoolSize, 0);
-		for(var i = 0 ; i < entropyPoolSize ; i++) {
-			entropy.addEntropy((Math.random() * 4294967295/*0xffffffff*/)|0);
-		}
-
 		var output;
 
 		function draw() {
 			requestAnimationFrame(draw, output);
 			var hex = "";
-			for(var i = 0 ; i < entropyPoolSize ; i++) {
-				hex += wordToHex(entropy[i]);
+			for(var i = 0 ; i < entropy.length ; i++) {
+				if((i % 40) === 0) {
+					hex += "<br/>";
+				}
+				hex += byteToHex(entropy[i]);
 			}
-			output.innerHTML = hex /*+ "&nbsp" + (0xffffffff >>> 0)*/;
+			output.innerHTML = hex;
 		}
-
-		document.onmousemove = function(event) {
-			entropy.addEntropy(event.screenX, event.screenY
-					/*0xffffffff - (event.screenX % 0xffffffff),
-					0xffffffff - (event.screenY % 0xffffffff)*/
-			);
-		};
 
 		window.addEventListener("load", function() {
 			output = document.getElementById("output");

@@ -3,16 +3,18 @@
  * Date: 9/20/13
  */
 
-function EntropyPool(size, fill) {
-	size = size || 1024;
-	fill = fill || 0;
+"use strict";
+
+(function(window) {
+
+	var size = 4096;
 	var array = new Array(size);
 	var w = 0;
 	var r = 0;
 
 	// Initialize pool
 	for(var f = 0 ; f < size ; f++) {
-		array[f] = fill;
+		array[f] = (f & 0xff);
 	}
 
 	function plusOne(i) {
@@ -23,24 +25,10 @@ function EntropyPool(size, fill) {
 		return (i === 0 ? size : (i - 1));
 	}
 
-	function product() {
-		if(arguments.length === 0) {
-			return 0;
-		}
-		var p = arguments[0];
-		for(var i = 1 ; i < arguments.length ; i++) {
-			p *= arguments[i];
-		}
-		return p;
-	}
-
 	array.addEntropy = function() {
-//		console.log(JSON.stringify(arguments));
-		array[w] = (
-			(product.apply(null, arguments) * 1046527) ^
-			(array[minusOne(w)])
-		) & 0xffffffff;
-		w = plusOne(w);
+		for(var i = 0 ; i < arguments.length ; i++, w = plusOne(w)) {
+			array[w] = (array[minusOne(w)] ^ (arguments[i] & 0xff));
+		}
 	};
 
 	array.readEntropy = function() {
@@ -49,6 +37,12 @@ function EntropyPool(size, fill) {
 		return array[i];
 	};
 
-	return array;
-}
+	window.document.addEventListener("mousemove", function(event) {
+		array.addEntropy(event.screenX, event.screenY);
+	});
+
+	window["entropy"] = array;
+
+}(window)
+);
 
