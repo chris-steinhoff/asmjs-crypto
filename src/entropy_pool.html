@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Entropy Pool</title>
+	<meta charset="US-ASCII"/>
+	<style type="text/css">
+		body {
+			font-family: monospace;
+		}
+	</style>
+	<script type="text/javascript" src="main/hex.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="main/entropy_pool.js" charset="UTF-8"></script>
+	<script type="text/javascript">
+		"use strict";
+
+		function escapeHtml(str) {
+			return str.replace(/[&]/g, "&amp;").replace(/[<]/g, "&lt;");
+		}
+
+		var entropyPoolSize = 16;
+		var entropy = new EntropyPool(entropyPoolSize, 0);
+		for(var i = 0 ; i < entropyPoolSize ; i++) {
+			entropy.addEntropy((Math.random() * 4294967295/*0xffffffff*/)|0);
+		}
+
+		var output;
+
+		function draw() {
+			requestAnimationFrame(draw, output);
+			var hex = "";
+			for(var i = 0 ; i < entropyPoolSize ; i++) {
+				hex += wordToHex(entropy[i]);
+			}
+			output.innerHTML = hex /*+ "&nbsp" + (0xffffffff >>> 0)*/;
+		}
+
+		document.onmousemove = function(event) {
+			entropy.addEntropy(event.screenX, event.screenY
+					/*0xffffffff - (event.screenX % 0xffffffff),
+					0xffffffff - (event.screenY % 0xffffffff)*/
+			);
+		};
+
+		window.addEventListener("load", function() {
+			output = document.getElementById("output");
+			draw();
+		});
+	</script>
+</head>
+<body>
+
+<div id="output"></div>
+
+</body>
+</html>
