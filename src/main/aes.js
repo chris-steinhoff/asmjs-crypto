@@ -827,7 +827,7 @@ view8[2054]=0x20; view8[2055]=0x40; view8[2056]=0x80; view8[2057]=0x1B; view8[20
 	 */
 	function encrypt(password, data, keysize) {
 		keysize = keysize|0;
-		var ciphertext, ciphertextLen, nRounds;
+		var ciphertext, ciphertextLen, nRounds, padLen;
 		var i, c, d, p;
 
 		// Validate keysize
@@ -862,12 +862,12 @@ view8[2054]=0x20; view8[2055]=0x40; view8[2056]=0x80; view8[2057]=0x1B; view8[20
 		// Convert the plaintext pointer to a byte-pointer
 		p = p << 1;
 
-		// Append the 0x80 byte
-		heap8[plainOffset + p++] = 0x80;
+		// Calculate the need amount of padding
+		padLen = 16 - (p % 16);
 
 		// Append padding
-		while((p % 16) > 0) {
-			heap8[plainOffset + p++] = 0x00;
+		for(i = 0 ; i < padLen ; i++) {
+			heap8[plainOffset + p++] = padLen;
 		}
 
 		// Encrypt padded block

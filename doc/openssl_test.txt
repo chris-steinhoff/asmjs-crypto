@@ -1,0 +1,4 @@
+#
+# Command to encrypt with openssl.
+#
+echo -n "0: pt-hex" | xxd -r | openssl enc -aes-128-ecb -e -K 00000000000000000000000000000000 | hexdump -ve '1/1 "%.2x"' ; echo
