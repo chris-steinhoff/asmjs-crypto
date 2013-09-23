@@ -888,6 +888,12 @@ view8[2054]=0x20; view8[2055]=0x40; view8[2056]=0x80; view8[2057]=0x1B; view8[20
 		var data8 = new Uint8Array(data);
 		var plaintext, nRounds;
 		var i, c, d;
+		var pad, e;
+
+		// Validate length
+		if((data.length % 16) > 0) {
+			return null;
+		}
 
 		// Validate keysize
 		if(keysize !== 128 && keysize !== 192 && keysize !== 256) {
@@ -912,16 +918,22 @@ view8[2054]=0x20; view8[2055]=0x40; view8[2056]=0x80; view8[2057]=0x1B; view8[20
 
 			asm.decrypt(rkOffset, nRounds, cipherOffset, plainOffset);
 
-			// Find the 0x80 byte and truncate
-			// start at the end and search backwards
-			i = plainOffset + 16;
+			e = plainOffset + 15;
 			if(d === data8.length) {
-				do {
-					i--;
-				} while(heap8[i] !== 0x80);
+				// Validate padding
+				pad = heap8[e];
+				i = e - pad;
+				if((pad < 1) || (pad > 16)) {
+					return null;
+				}
+				while((--e) > i) {
+					if(heap8[e] !== pad) {
+						return null;
+					}
+				}
 			}
 			// Convert text up to the 0x80 byte
-			for(c = plainOffset ; c < i ; c += 2) {
+			for(c = plainOffset ; c < e ; c += 2) {
 				plaintext += String.fromCharCode(heap8[c]);
 			}
 			c = 0;
